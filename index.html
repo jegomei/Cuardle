@@ -410,21 +410,25 @@
             // Altura tile + gap (aprox)
             const rowHeight = firstTile.offsetHeight + 2; 
             
-            let scrollIndex = 0;
-            // Si pasamos de la 4ta fila (index 3), empezamos a subir
-            if (currentRow > 3) {
-                scrollIndex = currentRow - 4;
-            }
-
-            const transformValue = `translateY(-${scrollIndex * rowHeight}px)`;
-
             for (let b = 0; b < 4; b++) {
-                const track = document.getElementById(`board-${b}-track`);
-                if (track) {
-                    track.style.transform = transformValue;
-                }
-            }
+        const track = document.getElementById(`board-${b}-track`);
+        if (!track) continue;
+
+        // 🚫 Si el tablero está resuelto, NO se hace scroll
+        if (boardSolved[b]) {
+            track.style.transform = 'translateY(0)';
+            continue;
         }
+
+        let scrollIndex = 0;
+//si pasamos de la fila 3, hacemos scroll
+        if (currentRow > 3) {
+            scrollIndex = currentRow - 4;
+        }
+
+        track.style.transform = `translateY(-${scrollIndex * rowHeight}px)`;
+    }
+}
 
         function submitGuess() {
             if (currentGuess.length !== wordLength) { showMessage("¡Faltan letras!"); return; }
