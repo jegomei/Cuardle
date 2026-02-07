@@ -250,25 +250,76 @@
           "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
         ];
         
-        function getDailyWords() {
-            const today = new Date();
-            const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-            const random = (s) => {
-                const x = Math.sin(s) * 10000;
-                return x - Math.floor(x);
-            };
-            const selected = [];
-            const used = new Set();
-            let counter = 0;
-            while (selected.length < 4) {
-                const idx = Math.floor(random(seed + counter) * wordPool.length);
-                if (!used.has(idx)) {
-                    selected.push(wordPool[idx]);
-                    used.add(idx);
-                }
-                counter++;
+        function getUsedWordsHistory() {
+            const history = localStorage.getItem('cuatroPalabrasHistory');
+            return history ? JSON.parse(history) : [];
+        }
+
+        function saveUsedWords(words) {
+            const history = getUsedWordsHistory();
+            const today = new Date().toDateString();
+            
+            // Eliminar entrada del mismo día si existe
+            const filtered = history.filter(entry => entry.date !== today);
+            
+            // Agregar las palabras de hoy
+            filtered.push({ date: today, words: words });
+            
+            // Mantener solo los últimos 60 días de historial
+            const recent = filtered.slice(-60);
+            
+            localStorage.setItem('cuatroPalabrasHistory', JSON.stringify(recent));
+        }
+
+        function getAvailableWords() {
+            const history = getUsedWordsHistory();
+            const usedWords = new Set();
+            
+            // Recopilar todas las palabras usadas en el historial
+            history.forEach(entry => {
+                entry.words.forEach(word => usedWords.add(word));
+            });
+            
+            // Filtrar el pool de palabras
+            const available = wordPool.filter(word => !usedWords.has(word));
+            
+            // Si quedan menos de 4 palabras disponibles, resetear el historial
+            if (available.length < 4) {
+                console.log('Pool agotado, reiniciando historial...');
+                localStorage.removeItem('cuatroPalabrasHistory');
+                return [...wordPool];
             }
-            return selected;
+            
+            return available;
+        }
+
+        function getDailyWords() {
+        const today = new Date();
+        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        const random = (s) => {
+            const x = Math.sin(s) * 10000;
+            return x - Math.floor(x);
+        };
+        
+        // Obtener palabras disponibles (excluyendo las ya usadas)
+        const available = getAvailableWords();
+        
+        const selected = [];
+        const used = new Set();
+        let counter = 0;
+        while (selected.length < 4) {
+            const idx = Math.floor(random(seed + counter) * available.length);
+            if (!used.has(idx)) {
+                selected.push(available[idx]);
+                used.add(idx);
+            }
+            counter++;
+        }
+        
+        // Guardar las palabras seleccionadas para este día
+        saveUsedWords(selected);
+        
+        return selected;
         }
 
         const targetWords = getDailyWords();
