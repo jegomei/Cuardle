@@ -317,9 +317,9 @@
             const rowHeight = firstTile.offsetHeight + 2; 
             
             let scrollIndex = 0;
-            // Si pasamos de la 4ta fila (index 3), empezamos a subir
-            if (currentRow > 3) {
-                scrollIndex = currentRow - 3;
+            // Si pasamos de la 6ta fila (index 5), empezamos a subir
+            if (currentRow > 5) {
+                scrollIndex = currentRow - 5;
             }
 
             const transformValue = `translateY(-${scrollIndex * rowHeight}px)`;
