@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de 4 Palabras</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 10px;
+        }
+        h1 { margin: 5px 0; font-size: 1.5rem; }
+        
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-rows: repeat(9, 1fr);
+            gap: 2px;
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+        }
+
+        .tile {
+            width: 22px;
+            height: 22px;
+            border: 1px solid #d3d6da;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        /* Colores */
+        .correct { background-color: #6aaa64; color: white; border-color: #6aaa64; }
+        .present { background-color: #c9b458; color: white; border-color: #c9b458; }
+        .absent  { background-color: #787c7e; color: white; border-color: #787c7e; }
+        .solved-overlay { opacity: 0.4; }
+
+        #message {
+            font-weight: bold;
+            font-size: 1rem;
+            min-height: 20px;
+            height: auto;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        /* BOTÓN COMPARTIR */
+        #share-btn {
+            display: none; /* Oculto por defecto */
+            background-color: #6aaa64;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #share-btn:hover { background-color: #538d4e; }
+
+        /* TECLADO */
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .kb-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .key {
+            font-weight: bold; border: none; padding: 0; cursor: pointer;
+            background-color: #d3d6da; border-radius: 4px; color: black;
+            height: 45px; flex: 1; display: flex;
+            justify-content: center; align-items: center; font-size: 14px;
+            user-select: none; touch-action: manipulation;
+        }
+        .key-wide { flex: 1.5; font-size: 12px; }
+        .key:active { background-color: #bbb; }
+        .key.disabled { background-color: #3a3a3c; color: #777; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Cuatro Palabras</h1>
+    <div id="message"></div>
+    
+    <button id="share-btn">📋 Compartir Resultado</button>
+
+    <div class="game-container" id="game-container"></div>
+    <div class="keyboard" id="keyboard"></div>
+
+    <script>
+        // CONFIGURACIÓN
+        
+        const START_DATE = new Date('2026-02-05'); // fecha inicial para contar el número de reto
+        
+        
+        function getChallengeNumber() {
+            const today = new Date();
+            // Eliminamos las horas para que el cálculo sea exacto por días
+            today.setHours(0, 0, 0, 0);
+            START_DATE.setHours(0, 0, 0, 0);
+    
+            const diffInTime = today.getTime() - START_DATE.getTime();
+            const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+    
+            return diffInDays + 1; // Sumamos 1 para que hoy sea el Reto #1
+        }
+        // Lista de palabras de 5 letras
+        const wordPool = [
+          "CASAS", "MUNDO", "LIBRO", "MONTE",
+    "PLAYA", "NOCHE", "CAMPO", "FUEGO",
+    "PIANO", "BARCO", "PERRO", "GATOS",
+    "CIELO", "PULPO", "TIGRE", "MENTE",
+    "BRAVO", "CORTE", "DULCE", "VERDE",
+    "RONDA", "SANTO", "TRAJE", "JUNIO",
+    "VISTA", "BUENO", "DOLOR", "DICHO",
+    "LINDO", "SUAVE", "CANTO", "DANZA",
+    "SILLA", "MESAS", "RELOJ", "TECHO",
+    "PARED", "SUELO", "MANOS", "DEDOS",
+    "NARIZ", "PECHO", "AGUAS", "AIRES",
+    "NIEVE", "HIELO", "CALOR", "MADRE",
+    "PADRE", "MUJER", "JOVEN", "VIEJO",
+    "CALMA", "MIEDO", "FELIZ", "ENOJO",
+    "CALMA", "RISAS", "COMER", "BEBER",
+    "ANDAR", "SALIR", "POBRE", "CAMAS",
+    "SOFAS", "PAPEL", "LAPIZ", "PLUMA",
+    "REGLA", "ROJOS", "TRUCO", "ROSAS",
+    "NEGRO", "TRAPO", "CAFES", "LUNES",
+    "ENERO", "MARZO", "JUNIO", "JULIO",
+    "TARDE", "NOCHE", "ANTES", "AHORA",
+    "LUEGO", "ANTES", "NUNCA", "CALLE",
+    "PLAZA", "PLACA", "ZONAS", "LUGAR",
+    "SITIO", "PUNTO", "PARTE", "ARROZ",
+    "CARNE", "POLLO", "LECHE", "QUESO",
+    "HUEVO", "FRUTA", "VINOS", "CAFES",
+    "JUGOS", "SOPAS", "DULCE", "PERRO",
+    "GATOS", "VACAS", "CERDO", "PATOS",
+    "RATON", "LEONA", "TIGRE", "MONOS",
+    "LOBOS", "ZORRO", "ABEJA", "MOSCA",
+    "FULAR", "ROSAS", "HOJAs", "RAMAS",
+    "RAMEN", "SELVA", "VALLE", "RICOS",
+    "LAGOS", "MARES", "ISLAS", "COSTA",
+    "COCHE", "AUTOS", "MOTOS", "BICIS",
+    "BURRO", "AVION", "BARCO", "TAXIS",
+    "METRO", "RUEDA", "MOTOR", "FRENO",
+    "CASAS", "HOGAR", "TORRE", "PISOS",
+    "SALAS", "BAÑOS", "PATIO", "ROPAS",
+    "FALDA", "BOTAS", "GORRO", "JUEGO",
+    "TENIS", "GOLFO", "BOXEO", "SALTO",
+    "BATES", "RITMO", "NOTAS", "RUIDO",
+    "VOCES", "COROS", "BANDA", "PARRA",
+    "CLASE", "AULAS", "CURSO", "TAREA",
+    "ARTES", "JEFES", "VALOR", "COSTO",
+    "GASTO", "VENTA", "BANCO", "BRUJA",
+    "HORAS", "TRIPA", "EPOCA", "LARGO",
+    "CORTO", "ALTOS", "BAJOS", "ANCHO",
+    "GORDO", "FLACO", "LENTO", "DUROS",
+    "SUAVE", "LISOS", "FINOS", "CLARO",
+    "SUCIO", "NUEVO", "VIEJO", "SECAR"
+          ];
+        
+        // Función que genera 4 palabras basándose en la fecha actual
+        function getDailyWords() {
+        const today = new Date();
+        // Semilla basada en año, mes y día
+        const seed = today.getFullYear() * 10000 + 
+                 (today.getMonth() + 1) * 100 + 
+                 today.getDate();
+    
+        // Generador de números pseudo-aleatorios con semilla
+        const random = (s) => {
+        const x = Math.sin(s) * 10000;
+        return x - Math.floor(x);
+        };
+    
+        // Seleccionar 4 palabras únicas
+        const selected = [];
+        const used = new Set();
+        let counter = 0;
+    
+        while (selected.length < 4) {
+        const idx = Math.floor(random(seed + counter) * wordPool.length);
+        if (!used.has(idx)) {
+            selected.push(wordPool[idx]);
+            used.add(idx);
+        }
+        counter++;
+    }
+    
+    return selected;
+}
+
+        const targetWords = getDailyWords();
+
+        const maxGuesses = 9;
+        const wordLength = 5;
+
+        // ESTADO
+        let currentGuess = "";
+        let currentRow = 0;
+        let boardSolved = [false, false, false, false];
+        let boardSolvedAt = [null, null, null, null]; // Guardamos en qué turno se resolvió cada uno
+        let gameOver = false;
+        let disabledLetters = new Set();
+        let guesses = []; // Lista para guardar los intentos
+
+        // INICIALIZACIÓN
+        const container = document.getElementById('game-container');
+        for (let b = 0; b < 4; b++) {
+            let boardDiv = document.createElement('div');
+            boardDiv.className = 'board';
+            boardDiv.id = `board-${b}`;
+            for (let r = 0; r < maxGuesses; r++) {
+                let rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+                rowDiv.id = `board-${b}-row-${r}`;
+                for (let t = 0; t < wordLength; t++) {
+                    let tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = `board-${b}-row-${r}-tile-${t}`;
+                    rowDiv.appendChild(tile);
+                }
+                boardDiv.appendChild(rowDiv);
+            }
+            container.appendChild(boardDiv);
+        }
+
+        // TECLADO
+        const keyboardContainer = document.getElementById('keyboard');
+        const layout = ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"];
+        layout.forEach((rowString, i) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'kb-row';
+            if (i === 2) createKey(rowDiv, 'ENTER', 'key-wide');
+            for (let char of rowString) createKey(rowDiv, char, '');
+            if (i === 2) createKey(rowDiv, '⌫', 'key-wide', 'BACKSPACE');
+            keyboardContainer.appendChild(rowDiv);
+        });
+
+        function createKey(container, display, className, actionId) {
+            const button = document.createElement('button');
+            button.textContent = display;
+            button.className = `key ${className}`;
+            button.id = actionId ? `key-${actionId}` : `key-${display}`;
+            button.addEventListener('click', () => handleInput(actionId || display));
+            container.appendChild(button);
+        }
+
+        // LOGICA INPUT
+        function handleInput(key) {
+            if (gameOver) return;
+            if (key === 'ENTER') submitGuess();
+            else if (key === 'BACKSPACE' || key === '⌫') {
+                if (currentGuess.length > 0) {
+                    currentGuess = currentGuess.slice(0, -1);
+                    updateGridDisplay();
+                }
+            } else if (/^[A-ZÑ]$/.test(key)) {
+                if (disabledLetters.has(key)) return;
+                if (currentGuess.length < wordLength) {
+                    currentGuess += key;
+                    updateGridDisplay();
+                }
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            let key = e.key.toUpperCase();
+            if (key === 'BACKSPACE' || key === 'ENTER') handleInput(key);
+            else if (/^[A-ZÑ]$/.test(key)) handleInput(key);
+        });
+
+        function updateGridDisplay() {
+            for (let b = 0; b < 4; b++) {
+                if (boardSolved[b]) continue;
+                for (let i = 0; i < wordLength; i++) {
+                    const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
+                    tile.textContent = currentGuess[i] || "";
+                }
+            }
+        }
+
+        function submitGuess() {
+            if (currentGuess.length !== wordLength) { showMessage("¡Faltan letras!"); return; }
+
+            for (let b = 0; b < 4; b++) {
+                if (boardSolved[b]) continue;
+                
+                const target = targetWords[b];
+                const guess = currentGuess;
+                let targetChars = target.split('');
+                let guessChars = guess.split('');
+                let colors = Array(5).fill('absent');
+
+                // Lógica colores
+                for (let i = 0; i < wordLength; i++) {
+                    if (guessChars[i] === targetChars[i]) {
+                        colors[i] = 'correct';
+                        targetChars[i] = null; guessChars[i] = null;
+                    }
+                }
+                for (let i = 0; i < wordLength; i++) {
+                    if (guessChars[i] !== null) {
+                        let idx = targetChars.indexOf(guessChars[i]);
+                        if (idx > -1) {
+                            colors[i] = 'present';
+                            targetChars[idx] = null;
+                        }
+                    }
+                }
+                
+                // Pintar DOM
+                for (let i = 0; i < wordLength; i++) {
+                    const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
+                    tile.classList.add(colors[i]);
+                }
+
+                if (guess === target) {
+                    boardSolved[b] = true;
+                    boardSolvedAt[b] = currentRow + 1; // Guardar turno de victoria
+                    document.getElementById(`board-${b}`).classList.add('solved-overlay');
+                }
+            }
+
+            // Bloquear teclas
+            const uniqueGuessChars = [...new Set(currentGuess.split(''))];
+            uniqueGuessChars.forEach(char => {
+                let existsInUnsolved = false;
+                for (let b = 0; b < 4; b++) {
+                    if (!boardSolved[b] && targetWords[b].includes(char)) {
+                        existsInUnsolved = true; break;
+                    }
+                }
+                if (!existsInUnsolved) {
+                    disabledLetters.add(char);
+                    const k = document.getElementById(`key-${char}`);
+                    if (k) k.classList.add('disabled');
+                }
+            });
+
+            // --- NUEVO: GUARDAR ESTADO ---
+            guesses.push(currentGuess); // Añadimos la palabra a la lista
+
+            const gameState = {
+            date: new Date().toDateString(), // Guardamos la fecha de hoy (ej: "Fri Feb 16 2024")
+            guesses: guesses
+            };
+            localStorage.setItem('cuatroPalabrasState', JSON.stringify(gameState));
+            // -----------------------------
+
+            currentRow++;
+            currentGuess = "";
+            showMessage("");
+
+            // FIN DEL JUEGO
+            if (boardSolved.every(s => s)) {
+                showMessage("¡VICTORIA TOTAL! 🎉");
+                endGame();
+            } else if (currentRow >= maxGuesses) {
+                const soluciones = targetWords.join(", ");
+                showMessage(`Fin del juego 💀 Soluciones: ${soluciones}`);
+                endGame();
+            }
+        }
+
+        function showMessage(msg) {
+            const m = document.getElementById('message');
+            m.textContent = msg;
+            setTimeout(() => { if (!gameOver && m.textContent === msg) m.textContent = ""; }, 2000);
+        }
+
+        function endGame() {
+            gameOver = true;
+            const challengeNum = getChallengeNumber();
+    
+            // Actualizamos el mensaje para que incluya el número de reto
+            const messageElement = document.getElementById('message');
+            messageElement.innerHTML = `<h3>Reto #${challengeNum}</h3>` + messageElement.innerHTML;
+            document.getElementById('share-btn').style.display = 'block';
+        }
+
+        // --- LÓGICA DE COMPARTIR ---
+        document.getElementById('share-btn').addEventListener('click', () => {
+            const emojis = { 'correct': '🟩', 'present': '🟨', 'absent': '⬛', 'empty': '⬜' };
+            
+            // Puntuaciones
+            const challengeNum = getChallengeNumber();
+            let text = `Cuatro Palabras #${challengeNum} 🧩\n`;
+            text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
+            text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n\n`;
+
+            // Generar cuadrícula visual
+            // Para ahorrar espacio, ponemos Tablero 0 y 1 juntos, y luego 2 y 3.
+            
+            // Función auxiliar para obtener la línea de emojis de un tablero en una fila específica
+            const getRowEmojis = (boardIdx, rowIdx) => {
+                let line = "";
+                // Si la fila es mayor al turno donde se resolvió, mostrar blanco o vacío
+                // (Para simplificar, leemos el DOM directamente)
+                for (let t = 0; t < wordLength; t++) {
+                    const tile = document.getElementById(`board-${boardIdx}-row-${rowIdx}-tile-${t}`);
+                    if (tile.classList.contains('correct')) line += emojis.correct;
+                    else if (tile.classList.contains('present')) line += emojis.present;
+                    else if (tile.classList.contains('absent')) line += emojis.absent;
+                    else line += emojis.empty;
+                }
+                return line;
+            };
+
+            // Construir Bloque Superior (Tableros 0 y 1)
+            for (let r = 0; r < currentRow; r++) {
+                // Solo añadir fila si al menos uno de los dos tableros estaba activo
+                // (O simplemente mostramos todas las filas jugadas)
+                text += getRowEmojis(0, r) + " " + getRowEmojis(1, r) + "\n";
+            }
+            text += "\n"; // Separador
+
+            // Construir Bloque Inferior (Tableros 2 y 3)
+            for (let r = 0; r < currentRow; r++) {
+                text += getRowEmojis(2, r) + " " + getRowEmojis(3, r) + "\n";
+            }
+
+            // Copiar al portapapeles (Truco para compatibilidad total)
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showMessage("¡Copiado al portapapeles!");
+            } catch (err) {
+                showMessage("Error al copiar :(");
+            }
+            document.body.removeChild(textArea);
+        });
+function loadGame() {
+    const savedData = localStorage.getItem('cuatroPalabrasState');
+    if (!savedData) return; // Si no hay nada guardado, no hacemos nada
+
+    const parsedData = JSON.parse(savedData);
+    const today = new Date().toDateString();
+
+    // Si los datos son de ayer (o antes), borramos y empezamos de cero
+    if (parsedData.date !== today) {
+        localStorage.removeItem('cuatroPalabrasState');
+        return;
+    }
+
+    // Si los datos son de HOY, restauramos la partida
+    // Truco: Vamos a "re-jugar" automáticamente lo que hizo el usuario
+    parsedData.guesses.forEach(word => {
+        currentGuess = word; // Ponemos la palabra en la variable
+        updateGridDisplay(); //Pinta las letras antes de validar
+        submitGuess();       // Ejecutamos la validación como si hubiera pulsado ENTER
+    });
+}
+
+// IMPORTANTE: Ejecutar esta función al arrancar
+loadGame();
+    </script>
+</body>
+</html>
