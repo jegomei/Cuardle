@@ -133,7 +133,26 @@
         }
         .key-wide { flex: 1.5; font-size: 0.9rem; }
         .key:active { background-color: #bbb; transform: translateY(1px); }
-        .key.disabled { background-color: #3a3a3c; color: #777; pointer-events: none; }
+        .key.disabled { background-color: #8e8e8d; color: #7e7c7c; pointer-events: none; }
+        
+        /* Color para la tecla BORRAR (Backspace) */
+        .key-delete {
+            background-color: #000000 !important; 
+            color: rgb(255, 255, 255) !important;
+        }
+
+        /* Color para la tecla ENTER */
+        .key-confirm {
+            background-color: #000000 !important; 
+            color: rgb(255, 255, 255) !important;
+        }
+
+        /* Efecto al pulsar para que se note el clic */
+        .key-delete:active, .key-confirm:active {
+            filter: brightness(1.2);
+        }
+
+
     </style>
 </head>
 <body>
@@ -249,18 +268,35 @@
             boardDiv.appendChild(trackDiv);
             container.appendChild(boardDiv);
         }
-
-        // TECLADO
+        // -----------TECLADO ----------//
+       
         const keyboardContainer = document.getElementById('keyboard');
         const layout = ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"];
+
         layout.forEach((rowString, i) => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'kb-row';
-            if (i === 2) createKey(rowDiv, 'ENTER', 'key-wide');
-            for (let char of rowString) createKey(rowDiv, char, '');
-            if (i === 2) createKey(rowDiv, '⌫', 'key-wide', 'BACKSPACE');
-            keyboardContainer.appendChild(rowDiv);
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'kb-row';
+
+        // 1. Si es la última fila, añadimos BORRAR a la IZQUIERDA
+        if (i === 2) {
+            // Añadimos la clase 'key-delete' para el color
+            createKey(rowDiv, '⌫', 'key-wide key-delete', 'BACKSPACE');
+        }
+
+        // Añadimos las letras normales
+        for (let char of rowString) {
+            createKey(rowDiv, char, '');
+        }
+
+        // 2. Si es la última fila, añadimos ENTER a la DERECHA
+        if (i === 2) {
+            // Añadimos la clase 'key-confirm' para el color
+            createKey(rowDiv, 'ENTER', 'key-wide key-confirm');
+        }
+
+        keyboardContainer.appendChild(rowDiv);
         });
+    
 
         function createKey(container, display, className, actionId) {
             const button = document.createElement('button');
