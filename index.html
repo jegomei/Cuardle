@@ -126,7 +126,7 @@
         :root { --key-size: clamp(42px, 8vw, 64px); }
         .key {
             font-weight: bold; border: none; padding: 0; cursor: pointer;
-            background-color: #cfd2d6; border-radius: 6px; color: black;
+            background-color: #d1d2d4; border-radius: 6px; color: black;
             height: var(--key-size);
             flex: 1; display: flex;
             justify-content: center; align-items: center; font-size: clamp(0.9rem, 3vw, 1.1rem);
@@ -136,7 +136,7 @@
         }
         .key-wide { flex: 1.5; }
         .key:active { background-color: #bbb; transform: translateY(1px); }
-        .key.disabled { background-color: #8e8e8d; color: #7e7c7c; pointer-events: none; }
+        .key.disabled { background-color: #c5c2c2; color: #bab6b6; pointer-events: none; }
         
         /* Color para la tecla BORRAR (Backspace) */
         .key-delete {
@@ -166,7 +166,37 @@
         .key-delete:active, .key-confirm:active {
             filter: brightness(1.2);
         }
+        
+        /* --- TECLADO 2x2 POR TABLERO --- */
+        .key-multi {
+            position: relative;
+            overflow: hidden;
+        }
 
+        .key-grid {
+            position: absolute;
+            inset: 2px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1px;
+            z-index: 1;
+        }
+
+        .quad {
+            background-color: #cfd2d6;
+            border-radius: 2px;
+        }
+
+        .quad.correct { background-color: #6aaa64; }
+        .quad.present { background-color: #c9b458; }
+        .quad.absent  { background-color: #c5c6c7; }
+
+        .key-label {
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+        }
 
     </style>
 </head>
@@ -192,7 +222,8 @@
             const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
             return diffInDays + 1;
         }
-
+        // Estado del teclado por letra y tablero
+        const keyboardState = {};
         const wordPool = [
           "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
           "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
@@ -312,18 +343,33 @@
         keyboardContainer.appendChild(rowDiv);
         });
     
-
         function createKey(container, display, className, actionId) {
             const button = document.createElement('button');
-            button.textContent = display;
-            button.className = `key ${className}`;
+            button.className = `key key-multi ${className}`;
             button.id = actionId ? `key-${actionId}` : `key-${display}`;
+
+            if (/^[A-ZÑ]$/.test(display)) {
+                button.innerHTML = `
+                    <div class="key-grid">
+                        <div class="quad" data-board="0"></div>
+                        <div class="quad" data-board="1"></div>
+                        <div class="quad" data-board="2"></div>
+                        <div class="quad" data-board="3"></div>
+                    </div>
+                    <span class="key-label">${display}</span>
+                `;
+            } else {
+                button.textContent = display;
+            }
+
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 handleInput(actionId || display);
             });
+
             container.appendChild(button);
         }
+        
 
         function handleInput(key) {
             if (gameOver) return;
@@ -417,12 +463,31 @@
                     const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
                     tile.classList.add(colors[i]);
                 }
+                // Actualizar estado del teclado 2x2
+                colors.forEach((color, i) => {
+                    const letter = guess[i];
+
+                    if (!keyboardState[letter]) {
+                        keyboardState[letter] = [null, null, null, null];
+                    }
+
+                    const priority = { correct: 3, present: 2, absent: 1, null: 0 };
+                    const prev = keyboardState[letter][b];
+
+                    if (priority[color] > priority[prev]) {
+                        keyboardState[letter][b] = color;
+                    }
+                });
+
+
 
                 if (guess === target) {
                     boardSolved[b] = true;
                     boardSolvedAt[b] = currentRow + 1;
                     document.getElementById(`board-${b}`).classList.add('solved-overlay');
                 }
+
+                updateKeyboard();
             }
 
             const uniqueGuessChars = [...new Set(currentGuess.split(''))];
@@ -463,6 +528,19 @@
                 endGame();
             }
         }
+
+        function updateKeyboard() {
+    for (const letter in keyboardState) {
+        const key = document.getElementById(`key-${letter}`);
+        if (!key) continue;
+
+        const quads = key.querySelectorAll('.quad');
+        keyboardState[letter].forEach((state, idx) => {
+            quads[idx].className = 'quad' + (state ? ` ${state}` : '');
+        });
+    }
+}
+
 
         function showMessage(msg) {
             const m = document.getElementById('message');
