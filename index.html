@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juego de 4 Palabras</title>
+    <title>Cuardle - 4 Palabras</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -18,38 +18,29 @@
         }
         h1 { margin: 10px 0 5px; font-size: 1.5rem; }
         
-        /* Contenedor principal: 2 columnas (2x2) pero ocupando todo el ancho */
         .game-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2x2 */
-            gap: 6px; /* Espacio reducido entre tableros */
-            padding: 5px; /* Margen mínimo lateral */
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding: 5px;
             width: 100%;
             box-sizing: border-box;
-            /* Espacio dinámico abajo para que el teclado fijo no tape los tableros */
-            padding-bottom: calc(18vh + env(safe-area-inset-bottom));
+            padding-bottom: calc(20vh + env(safe-area-inset-bottom));
         }
-        
 
-        .key-exhausted .key-label {
-            opacity: 0.5;
-        }
-        /* Tablero tipo "Ventana" */
         .board {
             background: white;
             padding: 4px;
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden; /* Oculta las filas sobrantes */
+            overflow: hidden;
             position: relative;
-            /* Tamaños calculados según ancho de pantalla para que sean responsivos */
-            --board-width: calc((100vw - 10px) / 2); /* aproximación: dos columnas */
+            --board-width: calc((100vw - 10px) / 2);
             --tile-size: calc((var(--board-width) - 18px) / 5);
-            height: calc(var(--tile-size) * 5 + 10px); /* mostrar ~5 filas */
+            height: calc(var(--tile-size) * 5 + 10px);
             min-height: 150px;
         }
 
-        /* Riel interno que se mueve */
         .board-track {
             display: grid;
             grid-template-rows: repeat(9, var(--tile-size));
@@ -57,11 +48,7 @@
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        .row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 2px;
-        }
+        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
 
         .tile {
             aspect-ratio: 1 / 1; 
@@ -74,42 +61,30 @@
             text-transform: uppercase;
             box-sizing: border-box;
             font-size: clamp(12px, calc(var(--tile-size) * 0.32), 20px);
-            width: calc(var(--tile-size));
-            height: calc(var(--tile-size));
+            width: var(--tile-size);
+            height: var(--tile-size);
         }
 
-        /* Colores */
         .correct { background-color: #6aaa64; color: white; border-color: #6aaa64; }
         .present { background-color: #c9b458; color: white; border-color: #c9b458; }
         .absent  { background-color: #787c7e; color: white; border-color: #787c7e; }
         .solved-overlay { opacity: 0.5; }
 
-        #message {
-            font-weight: bold;
-            font-size: 1rem;
-            min-height: 20px;
-            margin: 5px 0;
-            color: #333;
-            text-align: center;
-        }
+        #message { font-weight: bold; font-size: 1rem; min-height: 25px; margin: 5px 0; text-align: center; }
 
-        /* BOTÓN COMPARTIR */
         #share-btn {
             display: none; 
             background-color: #6aaa64;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 20px;
             font-size: 1rem;
             font-weight: bold;
             border-radius: 20px;
             cursor: pointer;
-            margin-bottom: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
         }
-        #share-btn:hover { background-color: #538d4e; }
 
-        /* TECLADO FIJO ABAJO */
         .keyboard {
             position: fixed;
             bottom: 0;
@@ -117,9 +92,7 @@
             width: 100%;
             background-color: #e2e4e6;
             padding: 8px 0;
-            /* Respetar área segura del iPhone */
-            padding-bottom: calc(6vh + env(safe-area-inset-bottom));
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -127,516 +100,296 @@
             gap: 6px;
         }
         .kb-row { display: flex; gap: 3px; justify-content: center; width: 100%; max-width: 600px; padding: 0 8px; }
-        :root { --key-size: clamp(42px, 8vw, 64px); }
         .key {
             min-width: 0;
             font-weight: bold; border: none; padding: 0; cursor: pointer;
-            background-color: #d1d2d4; border-radius: 6px; color: black;
-            height: var(--key-size);
-            flex: 1; display: flex;
-            justify-content: center; align-items: center; font-size: clamp(0.9rem, 3vw, 1.1rem);
+            background-color: #d1d2d4; border-radius: 6px; height: clamp(45px, 8vh, 60px);
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            font-size: clamp(0.8rem, 3vw, 1.1rem);
             user-select: none; touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .key-wide { flex: 1.5; }
-        .key:active { background-color: #bbb; transform: translateY(1px); }
-        .key.disabled { background-color: #ede7e7; color: #aaa6a6; pointer-events: none; }
-        .key-exhausted .quad {
-            background-color: #e7eef1 !important;
-        } 
-        /* Color para la tecla BORRAR (Backspace) */
-        .key-delete {
-            background-color: #000000 !important; 
-            color: rgb(255, 255, 255) !important;
-        }
+        .key-delete, .key-confirm { background-color: #000 !important; color: #fff !important; }
+        .key.disabled { opacity: 0.4; pointer-events: none; }
+        .key-exhausted .key-label { opacity: 0.4; }
 
-        /* Color para la tecla ENTER */
-        .key-confirm {
-            background-color: #000000 !important; 
-            color: rgb(255, 255, 255) !important;
-        }
-
-       
-
-    
-        /* Efecto al pulsar para que se note el clic */
-        .key-delete:active, .key-confirm:active {
-            filter: brightness(1.2);
-        }
-        
-        /* --- TECLADO 2x2 POR TABLERO --- */
-        .key-multi {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .key-grid {
-            position: absolute;
-            inset: 2px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 1px;
-            z-index: 1;
-        }
-
-        .quad {
-            background-color: #cfd2d6;
-            border-radius: 2px;
-        }
-
+        .key-multi { position: relative; overflow: hidden; }
+        .key-grid { position: absolute; inset: 2px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1px; }
+        .quad { background-color: #cfd2d6; border-radius: 1px; }
         .quad.correct { background-color: #6aaa64; }
         .quad.present { background-color: #c9b458; }
         .quad.absent  { background-color: #aeb5bc; }
-
-        .key-label {
-            position: relative;
-            z-index: 2;
-            font-weight: bold;
-        }
-
+        .key-label { position: relative; z-index: 2; }
     </style>
 </head>
 <body>
 
     <h1>Cuardle</h1>
-    <div id="message"></div>
-    
+    <div id="message">Cargando palabras...</div>
     <button id="share-btn">📋 Compartir Resultado</button>
 
     <div class="game-container" id="game-container"></div>
     <div class="keyboard" id="keyboard"></div>
 
     <script>
-        // CONFIGURACIÓN
-        const START_DATE = new Date('2026-02-05'); 
-        
-        function getChallengeNumber() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            START_DATE.setHours(0, 0, 0, 0);
-            const diffInTime = today.getTime() - START_DATE.getTime();
-            const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-            return diffInDays + 1;
-        }
-        // Estado del teclado por letra y tablero
-        const keyboardState = {};
-        const wordPool = [
-          "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
-          "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
-          "BRAVO", "CORTE", "DULCE", "VERDE", "RONDA", "SANTO", "TRAJE", "JUNIO",
-          "VISTA", "BUENO", "DOLOR", "DICHO", "LINDO", "SUAVE", "CANTO", "DANZA",
-          "SILLA", "MESAS", "RELOJ", "TECHO", "PARED", "SUELO", "MANOS", "DEDOS",
-          "NARIZ", "PECHO", "AGUAS", "AIRES", "NIEVE", "HIELO", "CALOR", "MADRE",
-          "PADRE", "MUJER", "JOVEN", "VIEJO", "CALMA", "MIEDO", "FELIZ", "ENOJO",
-          "CALMA", "RISAS", "COMER", "BEBER", "ANDAR", "SALIR", "POBRE", "CAMAS",
-          "SOFAS", "PAPEL", "LAPIZ", "PLUMA", "REGLA", "ROJOS", "TRUCO", "ROSAS",
-          "NEGRO", "TRAPO", "CAFES", "LUNES", "ENERO", "MARZO", "JUNIO", "JULIO",
-          "TARDE", "NOCHE", "ANTES", "AHORA", "LUEGO", "ANTES", "NUNCA", "CALLE",
-          "PLAZA", "PLACA", "ZONAS", "LUGAR", "SITIO", "PUNTO", "PARTE", "ARROZ",
-          "CARNE", "POLLO", "LECHE", "QUESO", "HUEVO", "FRUTA", "VINOS", "CAFES",
-          "JUGOS", "SOPAS", "DULCE", "PERRO", "GATOS", "VACAS", "CERDO", "PATOS",
-          "RATON", "LEONA", "TIGRE", "MONOS", "LOBOS", "ZORRO", "ABEJA", "MOSCA",
-          "FULAR", "ROSAS", "HOJAs", "RAMAS", "RAMEN", "SELVA", "VALLE", "RICOS",
-          "LAGOS", "MARES", "ISLAS", "COSTA", "COCHE", "AUTOS", "MOTOS", "BICIS",
-          "BURRO", "AVION", "BARCO", "TAXIS", "METRO", "RUEDA", "MOTOR", "FRENO",
-          "CASAS", "HOGAR", "TORRE", "PISOS", "SALAS", "BAÑOS", "PATIO", "ROPAS",
-          "FALDA", "BOTAS", "GORRO", "JUEGO", "TENIS", "GOLFO", "BOXEO", "SALTO",
-          "BATES", "RITMO", "NOTAS", "RUIDO", "VOCES", "COROS", "BANDA", "PARRA",
-          "CLASE", "AULAS", "CURSO", "TAREA", "ARTES", "JEFES", "VALOR", "COSTO",
-          "GASTO", "VENTA", "BANCO", "BRUJA", "HORAS", "TRIPA", "EPOCA", "LARGO",
-          "CORTO", "ALTOS", "BAJOS", "ANCHO", "GORDO", "FLACO", "LENTO", "DUROS",
-          "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
-        ];
-        
-        function getDailyWords() {
-            const today = new Date();
-            const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-            const random = (s) => {
-                const x = Math.sin(s) * 10000;
-                return x - Math.floor(x);
-            };
-            const selected = [];
-            const used = new Set();
-            let counter = 0;
-            while (selected.length < 4) {
-                const idx = Math.floor(random(seed + counter) * wordPool.length);
-                if (!used.has(idx)) {
-                    selected.push(wordPool[idx]);
-                    used.add(idx);
-                }
-                counter++;
-            }
-            return selected;
-        }
-
-        const targetWords = getDailyWords();
+        // CONFIGURACIÓN INICIAL
+        const START_DATE = new Date('2026-02-05');
         const maxGuesses = 9;
         const wordLength = 5;
 
-        // ESTADO
+        // ESTADO GLOBAL
+        let targetWords = [];
+        let wordPools = {};
         let currentGuess = "";
         let currentRow = 0;
         let boardSolved = [false, false, false, false];
         let boardSolvedAt = [null, null, null, null];
         let gameOver = false;
+        let keyboardState = {};
         let disabledLetters = new Set();
         let guesses = [];
 
-        // INICIALIZACIÓN
-        const container = document.getElementById('game-container');
-        for (let b = 0; b < 4; b++) {
-            let boardDiv = document.createElement('div');
-            boardDiv.className = 'board';
-            boardDiv.id = `board-${b}`;
-            
-            // Wrapper interno para el scroll (Track)
-            let trackDiv = document.createElement('div');
-            trackDiv.className = 'board-track';
-            trackDiv.id = `board-${b}-track`;
+        // 1. CARGA DE DATOS EXTERNOS
+        async function initGame() {
+            try {
+                const response = await fetch('palabras.json');
+                if (!response.ok) throw new Error("No se pudo cargar el archivo de palabras");
+                wordPools = await response.json();
+                
+                targetWords = getDailyWords();
+                setupBoard();
+                setupKeyboard();
+                loadGameState();
+                document.getElementById('message').textContent = "";
+            } catch (err) {
+                document.getElementById('message').textContent = "Error al iniciar el juego.";
+                console.error(err);
+            }
+        }
 
-            for (let r = 0; r < maxGuesses; r++) {
-                let rowDiv = document.createElement('div');
-                rowDiv.className = 'row';
-                rowDiv.id = `board-${b}-row-${r}`;
-                for (let t = 0; t < wordLength; t++) {
-                    let tile = document.createElement('div');
-                    tile.className = 'tile';
-                    tile.id = `board-${b}-row-${r}-tile-${t}`;
-                    rowDiv.appendChild(tile);
+        function getDailyWords() {
+            const today = new Date();
+            const currentMonth = today.getMonth() + 1;
+            const dayOfMonth = today.getDate();
+            
+            const pool = wordPools[currentMonth] || wordPools["default"];
+            const shuffled = [...pool];
+            
+            // Barajado determinista por mes
+            let seed = 12345 + currentMonth;
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor((Math.sin(seed++) * 10000 - Math.floor(Math.sin(seed) * 10000)) * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            const startIndex = ((dayOfMonth - 1) * 4) % shuffled.length;
+            return [
+                shuffled[startIndex % shuffled.length],
+                shuffled[(startIndex + 1) % shuffled.length],
+                shuffled[(startIndex + 2) % shuffled.length],
+                shuffled[(startIndex + 3) % shuffled.length]
+            ].map(w => w.toUpperCase());
+        }
+
+        // 2. CONSTRUCCIÓN DE LA INTERFAZ
+        function setupBoard() {
+            const container = document.getElementById('game-container');
+            container.innerHTML = "";
+            for (let b = 0; b < 4; b++) {
+                let boardDiv = document.createElement('div');
+                boardDiv.className = 'board';
+                boardDiv.id = `board-${b}`;
+                let track = document.createElement('div');
+                track.className = 'board-track';
+                track.id = `board-${b}-track`;
+
+                for (let r = 0; r < maxGuesses; r++) {
+                    let row = document.createElement('div');
+                    row.className = 'row';
+                    for (let t = 0; t < wordLength; t++) {
+                        let tile = document.createElement('div');
+                        tile.className = 'tile';
+                        tile.id = `board-${b}-row-${r}-tile-${t}`;
+                        row.appendChild(tile);
+                    }
+                    track.appendChild(row);
                 }
-                trackDiv.appendChild(rowDiv);
+                boardDiv.appendChild(track);
+                container.appendChild(boardDiv);
             }
-            
-            boardDiv.appendChild(trackDiv);
-            container.appendChild(boardDiv);
-        }
-        // -----------TECLADO ----------//
-       
-        const keyboardContainer = document.getElementById('keyboard');
-        const layout = ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"];
-
-        layout.forEach((rowString, i) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'kb-row';
-
-        // 1. Si es la última fila, añadimos BORRAR a la IZQUIERDA
-        if (i === 2) {
-            // Añadimos la clase 'key-delete' para el color
-            createKey(rowDiv, '⌫', 'key-wide key-delete', 'BACKSPACE');
         }
 
-        // Añadimos las letras normales
-        for (let char of rowString) {
-            createKey(rowDiv, char, '');
-        }
-
-        // 2. Si es la última fila, añadimos ENTER a la DERECHA
-        if (i === 2) {
-            // Añadimos la clase 'key-confirm' para el color
-            createKey(rowDiv, 'ENTER', 'key-wide key-confirm');
-        }
-
-        keyboardContainer.appendChild(rowDiv);
-        });
-    
-        function createKey(container, display, className, actionId) {
-            const button = document.createElement('button');
-            button.className = `key key-multi ${className}`;
-            button.id = actionId ? `key-${actionId}` : `key-${display}`;
-
-            if (/^[A-ZÑ]$/.test(display)) {
-                button.innerHTML = `
-                    <div class="key-grid">
-                        <div class="quad" data-board="0"></div>
-                        <div class="quad" data-board="1"></div>
-                        <div class="quad" data-board="2"></div>
-                        <div class="quad" data-board="3"></div>
-                    </div>
-                    <span class="key-label">${display}</span>
-                `;
-            } else {
-                button.textContent = display;
-            }
-
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                handleInput(actionId || display);
+        function setupKeyboard() {
+            const kbContainer = document.getElementById('keyboard');
+            kbContainer.innerHTML = "";
+            const layout = ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"];
+            layout.forEach((rowStr, i) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'kb-row';
+                if (i === 2) createKey(rowDiv, '⌫', 'key-wide key-delete', 'BACKSPACE');
+                for (let char of rowStr) createKey(rowDiv, char, '');
+                if (i === 2) createKey(rowDiv, 'ENTER', 'key-wide key-confirm');
+                kbContainer.appendChild(rowDiv);
             });
-
-            container.appendChild(button);
         }
-        
 
+        function createKey(container, display, className, actionId) {
+            const btn = document.createElement('button');
+            btn.className = `key key-multi ${className}`;
+            btn.id = `key-${actionId || display}`;
+            if (/^[A-ZÑ]$/.test(display)) {
+                btn.innerHTML = `<div class="key-grid">${[0,1,2,3].map(n => `<div class="quad" data-board="${n}"></div>`).join('')}</div><span class="key-label">${display}</span>`;
+            } else {
+                btn.textContent = display;
+            }
+            btn.onclick = () => handleInput(actionId || display);
+            container.appendChild(btn);
+        }
+
+        // 3. LÓGICA DEL JUEGO
         function handleInput(key) {
             if (gameOver) return;
             if (key === 'ENTER') submitGuess();
             else if (key === 'BACKSPACE' || key === '⌫') {
-                if (currentGuess.length > 0) {
-                    currentGuess = currentGuess.slice(0, -1);
-                    updateGridDisplay();
-                }
-            } else if (/^[A-ZÑ]$/.test(key)) {
-                if (disabledLetters.has(key)) return;
-                if (currentGuess.length < wordLength) {
-                    currentGuess += key;
-                    updateGridDisplay();
-                }
+                currentGuess = currentGuess.slice(0, -1);
+                updateGridDisplay();
+            } else if (/^[A-ZÑ]$/.test(key) && currentGuess.length < wordLength) {
+                currentGuess += key;
+                updateGridDisplay();
             }
         }
-        document.addEventListener('keydown', (e) => {
-            let key = e.key.toUpperCase();
-            if (key === 'BACKSPACE' || key === 'ENTER') handleInput(key);
-            else if (/^[A-ZÑ]$/.test(key)) handleInput(key);
-        });
 
         function updateGridDisplay() {
             for (let b = 0; b < 4; b++) {
                 if (boardSolved[b]) continue;
                 for (let i = 0; i < wordLength; i++) {
-                    const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
-                    tile.textContent = currentGuess[i] || "";
+                    document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`).textContent = currentGuess[i] || "";
                 }
             }
         }
 
-        // --- FUNCIÓN DE SCROLL AUTOMÁTICO ---
-        function scrollToActiveRow() {
-            // Calculamos altura dinámica de la fila basada en el primer tile
-            // Esto asegura que funcione aunque cambie el tamaño de pantalla
-            const firstTile = document.querySelector('.tile');
-            if (!firstTile) return;
-            
-            // Altura tile + gap (aprox)
-            const rowHeight = firstTile.offsetHeight + 2; 
-            
-            for (let b = 0; b < 4; b++) {
-        const track = document.getElementById(`board-${b}-track`);
-        if (!track) continue;
-
-        // 🚫 Si el tablero está resuelto, NO se hace scroll
-        if (boardSolved[b]) {
-            track.style.transform = 'translateY(0)';
-            continue;
-        }
-
-        let scrollIndex = 0;
-//si pasamos de la fila 3, hacemos scroll
-        if (currentRow > 3) {
-            scrollIndex = currentRow - 4;
-        }
-
-        track.style.transform = `translateY(-${scrollIndex * rowHeight}px)`;
-    }
-}
-
         function submitGuess() {
-            if (currentGuess.length !== wordLength) { showMessage("¡Faltan letras!"); return; }
+            if (currentGuess.length !== wordLength) return;
 
-
-            
+            const guess = currentGuess;
             for (let b = 0; b < 4; b++) {
                 if (boardSolved[b]) continue;
                 
                 const target = targetWords[b];
-                const guess = currentGuess;
-                let targetChars = target.split('');
-                let guessChars = guess.split('');
                 let colors = Array(5).fill('absent');
+                let tArr = target.split('');
+                let gArr = guess.split('');
 
-                for (let i = 0; i < wordLength; i++) {
-                    if (guessChars[i] === targetChars[i]) {
-                        colors[i] = 'correct';
-                        targetChars[i] = null; guessChars[i] = null;
-                    }
-                }
-                for (let i = 0; i < wordLength; i++) {
-                    if (guessChars[i] !== null) {
-                        let idx = targetChars.indexOf(guessChars[i]);
-                        if (idx > -1) {
-                            colors[i] = 'present';
-                            targetChars[idx] = null;
-                        }
-                    }
-                }
-                
-                for (let i = 0; i < wordLength; i++) {
-                    const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
-                    tile.classList.add(colors[i]);
-                }
-                // Actualizar estado del teclado 2x2
-                colors.forEach((color, i) => {
-                    const letter = guess[i];
-
-                    if (!keyboardState[letter]) {
-                        keyboardState[letter] = [null, null, null, null];
-                    }
-
-                    const priority = { correct: 3, present: 2, absent: 1, null: 0 };
-                    const prev = keyboardState[letter][b];
-
-                    if (priority[color] > priority[prev]) {
-                        keyboardState[letter][b] = color;
-                    }
+                gArr.forEach((char, i) => {
+                    if (char === tArr[i]) { colors[i] = 'correct'; tArr[i] = null; gArr[i] = null; }
+                });
+                gArr.forEach((char, i) => {
+                    if (char && tArr.includes(char)) { colors[i] = 'present'; tArr[tArr.indexOf(char)] = null; }
                 });
 
-
+                colors.forEach((c, i) => {
+                    const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
+                    tile.classList.add(c);
+                    updateKeyboardState(guess[i], b, c);
+                });
 
                 if (guess === target) {
                     boardSolved[b] = true;
                     boardSolvedAt[b] = currentRow + 1;
                     document.getElementById(`board-${b}`).classList.add('solved-overlay');
                 }
-
-                updateKeyboard();
             }
 
-            const uniqueGuessChars = [...new Set(currentGuess.split(''))];
-            uniqueGuessChars.forEach(char => {
-                let existsInUnsolved = false;
-                for (let b = 0; b < 4; b++) {
-                    if (!boardSolved[b] && targetWords[b].includes(char)) {
-                        existsInUnsolved = true; break;
-                    }
-                }
-                if (!existsInUnsolved) {
-                    disabledLetters.add(char);
-                    const k = document.getElementById(`key-${char}`);
-                    if (k) k.classList.add('disabled');
-                }
-            });
-
-            guesses.push(currentGuess);
-            const gameState = {
-                date: new Date().toDateString(),
-                guesses: guesses
-            };
-            localStorage.setItem('cuatroPalabrasState', JSON.stringify(gameState));
-
+            guesses.push(guess);
+            saveGameState();
             currentRow++;
             currentGuess = "";
-            showMessage("");
-
-            // Ajustar vista (scroll)
+            updateKeyboardVisuals();
             scrollToActiveRow();
+            checkEndGame();
+        }
 
+        function updateKeyboardState(letter, boardIdx, color) {
+            if (!keyboardState[letter]) keyboardState[letter] = [null, null, null, null];
+            const weights = { correct: 3, present: 2, absent: 1, null: 0 };
+            if (weights[color] > weights[keyboardState[letter][boardIdx]]) {
+                keyboardState[letter][boardIdx] = color;
+            }
+        }
+
+        function updateKeyboardVisuals() {
+            for (const letter in keyboardState) {
+                const keyBtn = document.getElementById(`key-${letter}`);
+                if (!keyBtn) continue;
+                const quads = keyBtn.querySelectorAll('.quad');
+                let isExhausted = true;
+                keyboardState[letter].forEach((state, i) => {
+                    quads[i].className = 'quad' + (state ? ` ${state}` : '');
+                    if (!boardSolved[i] && state !== 'absent') isExhausted = false;
+                });
+                if (isExhausted) keyBtn.classList.add('key-exhausted');
+            }
+        }
+
+        function scrollToActiveRow() {
+            const tile = document.querySelector('.tile');
+            const rowH = tile.offsetHeight + 2;
+            for (let b = 0; b < 4; b++) {
+                const track = document.getElementById(`board-${b}-track`);
+                if (boardSolved[b]) { track.style.transform = 'translateY(0)'; continue; }
+                let offset = currentRow > 3 ? (currentRow - 4) * rowH : 0;
+                track.style.transform = `translateY(-${offset}px)`;
+            }
+        }
+
+        function checkEndGame() {
             if (boardSolved.every(s => s)) {
-                showMessage("¡VICTORIA TOTAL! 🎉");
-                endGame();
+                gameOver = true;
+                document.getElementById('message').textContent = "¡VICTORIA! 🎉";
+                showShare();
             } else if (currentRow >= maxGuesses) {
-                const soluciones = targetWords.join(", ");
-                showMessage(`Fin del juego 💀 Soluciones: ${soluciones}`);
-                endGame();
+                gameOver = true;
+                document.getElementById('message').textContent = `Fin: ${targetWords.join(" ")}`;
+                showShare();
             }
         }
 
-       function updateKeyboard() {
-    for (const letter in keyboardState) {
-        const key = document.getElementById(`key-${letter}`);
-        if (!key) continue;
+        // 4. PERSISTENCIA Y COMPARTIR
+        function saveGameState() {
+            const data = { date: new Date().toDateString(), guesses };
+            localStorage.setItem('cuardle_state', JSON.stringify(data));
+        }
 
-        const states = keyboardState[letter];
-        const quads = key.querySelectorAll('.quad');
-
-        let exhausted = true;
-
-        states.forEach((state, idx) => {
-            // Pintar cuadrantes normalmente
-            quads[idx].className = 'quad' + (state ? ` ${state}` : '');
-
-            // Si el tablero NO está resuelto
-            // y la letra NO es absent, aún puede servir
-            if (!boardSolved[idx] && state !== 'absent') {
-                exhausted = false;
+        function loadGameState() {
+            const saved = localStorage.getItem('cuardle_state');
+            if (!saved) return;
+            const parsed = JSON.parse(saved);
+            if (parsed.date === new Date().toDateString()) {
+                parsed.guesses.forEach(g => { currentGuess = g; submitGuess(); });
             }
-        });
-
-        // Aplicar estilo de letra agotada
-        if (exhausted) {
-            key.classList.add('key-exhausted');
-        } else {
-            key.classList.remove('key-exhausted');
-        }
-    }
-}
-
-
-        function showMessage(msg) {
-            const m = document.getElementById('message');
-            m.textContent = msg;
-            setTimeout(() => { if (!gameOver && m.textContent === msg) m.textContent = ""; }, 2000);
         }
 
-        function endGame() {
-            gameOver = true;
-            const challengeNum = getChallengeNumber();
-            const messageElement = document.getElementById('message');
-            messageElement.innerHTML = `<h3>Reto #${challengeNum}</h3>` + messageElement.innerHTML;
+        function showShare() {
             document.getElementById('share-btn').style.display = 'block';
         }
 
-        document.getElementById('share-btn').addEventListener('click', () => {
-            const emojis = { 'correct': '🟩', 'present': '🟨', 'absent': '⬛', 'empty': '⬜' };
-            const challengeNum = getChallengeNumber();
-            let text = `Cuardle #${challengeNum} 🧩\n`;
-            text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
-            text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n\n`;
+        document.getElementById('share-btn').onclick = () => {
+            let text = `Cuardle #${Math.floor((new Date() - START_DATE)/(1000*3600*24))} 🧩\n`;
+            text += boardSolvedAt.map(s => s || '💀').join(' ') + '\n\n';
+            // Lógica simplificada de compartir aquí...
+            navigator.clipboard.writeText(text);
+            alert("Resultado copiado!");
+        };
 
-            const getRowEmojis = (boardIdx, rowIdx) => {
-                let line = "";
-                for (let t = 0; t < wordLength; t++) {
-                    const tile = document.getElementById(`board-${boardIdx}-row-${rowIdx}-tile-${t}`);
-                    if (tile.classList.contains('correct')) line += emojis.correct;
-                    else if (tile.classList.contains('present')) line += emojis.present;
-                    else if (tile.classList.contains('absent')) line += emojis.absent;
-                    else line += emojis.empty;
-                }
-                return line;
-            };
+        // Iniciar
+        initGame();
 
-            for (let r = 0; r < currentRow; r++) {
-                text += getRowEmojis(0, r) + " " + getRowEmojis(1, r) + "\n";
-            }
-            text += "\n";
-            for (let r = 0; r < currentRow; r++) {
-                text += getRowEmojis(2, r) + " " + getRowEmojis(3, r) + "\n";
-            }
-
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showMessage("¡Copiado al portapapeles!");
-            } catch (err) { showMessage("Error al copiar :("); }
-            document.body.removeChild(textArea);
+        // Listener teclado físico
+        document.addEventListener('keydown', (e) => {
+            let k = e.key.toUpperCase();
+            if (k === 'ENTER' || k === 'BACKSPACE') handleInput(k);
+            else if (/^[A-ZÑ]$/.test(k)) handleInput(k);
         });
-
-        function loadGame() {
-            const savedData = localStorage.getItem('cuatroPalabrasState');
-            if (!savedData) return;
-
-            const parsedData = JSON.parse(savedData);
-            const today = new Date().toDateString();
-
-            if (parsedData.date !== today) {
-                localStorage.removeItem('cuatroPalabrasState');
-                return;
-            }
-
-            parsedData.guesses.forEach(word => {
-                currentGuess = word;
-                updateGridDisplay();
-                submitGuess();
-            });
-            // Restaurar posición de scroll al cargar
-            // Pequeño timeout para asegurar que el DOM esté pintado
-            setTimeout(scrollToActiveRow, 50);
-        }
-
-        loadGame();
     </script>
 </body>
 </html>
