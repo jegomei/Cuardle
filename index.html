@@ -116,7 +116,7 @@
             left: 0;
             width: 100%;
             background-color: #e2e4e6;
-            padding: 6px 6px;
+            padding: 8px 0;
             /* Respetar área segura del iPhone */
             padding-bottom: calc(6vh + env(safe-area-inset-bottom));
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -126,9 +126,10 @@
             align-items: center;
             gap: 6px;
         }
-        .kb-row { display: flex; gap: 3px; justify-content: center; width: 100%; max-width: 600px; }
+        .kb-row { display: flex; gap: 3px; justify-content: center; width: 100%; max-width: 600px; padding: 0 8px; }
         :root { --key-size: clamp(42px, 8vw, 64px); }
         .key {
+            min-width: 0;
             font-weight: bold; border: none; padding: 0; cursor: pointer;
             background-color: #d1d2d4; border-radius: 6px; color: black;
             height: var(--key-size);
