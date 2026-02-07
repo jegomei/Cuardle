@@ -29,9 +29,7 @@
             /* Espacio dinámico abajo para que el teclado fijo no tape los tableros */
             padding-bottom: calc(18vh + env(safe-area-inset-bottom));
         }
-        .key-exhausted .quad {
-            background-color: #787c7e !important;
-        }
+        
 
         .key-exhausted .key-label {
             opacity: 0.5;
@@ -142,8 +140,10 @@
         }
         .key-wide { flex: 1.5; }
         .key:active { background-color: #bbb; transform: translateY(1px); }
-        .key.disabled { background-color: #c5c2c2; color: #bab6b6; pointer-events: none; }
-        
+        .key.disabled { background-color: #ede7e7; color: #aaa6a6; pointer-events: none; }
+        .key-exhausted .quad {
+            background-color: #e7eef1 !important;
+        } 
         /* Color para la tecla BORRAR (Backspace) */
         .key-delete {
             background-color: #000000 !important; 
@@ -156,16 +156,7 @@
             color: rgb(255, 255, 255) !important;
         }
 
-        .invalid-word {
-        color: #e74c3c !important; /* Rojo */
-        animation: shake 0.5s; /* Efecto de vibración */
-        }
-
-        @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-        }
+       
 
     
         /* Efecto al pulsar para que se note el clic */
@@ -196,7 +187,7 @@
 
         .quad.correct { background-color: #6aaa64; }
         .quad.present { background-color: #c9b458; }
-        .quad.absent  { background-color: #c5c6c7; }
+        .quad.absent  { background-color: #aeb5bc; }
 
         .key-label {
             position: relative;
