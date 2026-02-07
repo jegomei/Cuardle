@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Juego de 4 Palabras</title>
     <style>
         body {
@@ -14,24 +14,38 @@
             color: #333;
             margin: 0;
             padding: 10px;
+            /* Evita el rebote en iOS */
+            overscroll-behavior: none; 
         }
         h1 { margin: 5px 0; font-size: 1.5rem; }
         
         .game-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px; /* Reducido un poco */
+            margin-bottom: 5px;
         }
 
+        /* --- MODIFICADO: Estilo del Tablero "Ventana" --- */
         .board {
-            display: grid;
-            grid-template-rows: repeat(9, 1fr);
-            gap: 2px;
+            /* La altura ahora es fija para mostrar aprox 5 filas y media */
+            /* 22px (tile) + 2px (gap) = 24px por fila. 24 * 5 = 120px + padding */
+            height: 130px; 
             background: white;
             padding: 5px;
             border-radius: 5px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden; /* Oculta las filas que se salgan */
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* --- NUEVO: El riel que se mueve dentro del tablero --- */
+        .board-track {
+            display: grid;
+            grid-template-rows: repeat(9, 1fr);
+            gap: 2px;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .row {
@@ -50,13 +64,14 @@
             font-weight: bold;
             text-transform: uppercase;
             font-size: 12px;
+            box-sizing: border-box; 
         }
 
         /* Colores */
         .correct { background-color: #6aaa64; color: white; border-color: #6aaa64; }
         .present { background-color: #c9b458; color: white; border-color: #c9b458; }
         .absent  { background-color: #787c7e; color: white; border-color: #787c7e; }
-        .solved-overlay { opacity: 0.4; }
+        .solved-overlay { opacity: 0.5; }
 
         #message {
             font-weight: bold;
@@ -65,11 +80,12 @@
             height: auto;
             margin-bottom: 5px;
             color: #333;
+            text-align: center;
         }
 
         /* BOTÓN COMPARTIR */
         #share-btn {
-            display: none; /* Oculto por defecto */
+            display: none; 
             background-color: #6aaa64;
             color: white;
             border: none;
@@ -88,18 +104,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            margin-top: 10px;
+            gap: 4px; /* Reducido gap */
+            margin-top: 5px; /* Subirlo pegándolo al juego */
             width: 100%;
             max-width: 500px;
+            padding-bottom: 20px; /* Espacio para gestos del móvil */
         }
-        .kb-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .kb-row { display: flex; gap: 3px; justify-content: center; width: 100%; }
         .key {
             font-weight: bold; border: none; padding: 0; cursor: pointer;
             background-color: #d3d6da; border-radius: 4px; color: black;
-            height: 45px; flex: 1; display: flex;
+            height: 42px; /* Teclas ligeramente más bajas para ahorrar espacio */
+            flex: 1; display: flex;
             justify-content: center; align-items: center; font-size: 14px;
             user-select: none; touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .key-wide { flex: 1.5; font-size: 12px; }
         .key:active { background-color: #bbb; }
@@ -119,107 +138,68 @@
     <script>
         // CONFIGURACIÓN
         
-        const START_DATE = new Date('2026-02-05'); // fecha inicial para contar el número de reto
-        
+        const START_DATE = new Date('2026-02-05'); 
         
         function getChallengeNumber() {
             const today = new Date();
-            // Eliminamos las horas para que el cálculo sea exacto por días
             today.setHours(0, 0, 0, 0);
             START_DATE.setHours(0, 0, 0, 0);
-    
             const diffInTime = today.getTime() - START_DATE.getTime();
             const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-    
-            return diffInDays + 1; // Sumamos 1 para que hoy sea el Reto #1
+            return diffInDays + 1;
         }
+
         // Lista de palabras de 5 letras
         const wordPool = [
-          "CASAS", "MUNDO", "LIBRO", "MONTE",
-    "PLAYA", "NOCHE", "CAMPO", "FUEGO",
-    "PIANO", "BARCO", "PERRO", "GATOS",
-    "CIELO", "PULPO", "TIGRE", "MENTE",
-    "BRAVO", "CORTE", "DULCE", "VERDE",
-    "RONDA", "SANTO", "TRAJE", "JUNIO",
-    "VISTA", "BUENO", "DOLOR", "DICHO",
-    "LINDO", "SUAVE", "CANTO", "DANZA",
-    "SILLA", "MESAS", "RELOJ", "TECHO",
-    "PARED", "SUELO", "MANOS", "DEDOS",
-    "NARIZ", "PECHO", "AGUAS", "AIRES",
-    "NIEVE", "HIELO", "CALOR", "MADRE",
-    "PADRE", "MUJER", "JOVEN", "VIEJO",
-    "CALMA", "MIEDO", "FELIZ", "ENOJO",
-    "CALMA", "RISAS", "COMER", "BEBER",
-    "ANDAR", "SALIR", "POBRE", "CAMAS",
-    "SOFAS", "PAPEL", "LAPIZ", "PLUMA",
-    "REGLA", "ROJOS", "TRUCO", "ROSAS",
-    "NEGRO", "TRAPO", "CAFES", "LUNES",
-    "ENERO", "MARZO", "JUNIO", "JULIO",
-    "TARDE", "NOCHE", "ANTES", "AHORA",
-    "LUEGO", "ANTES", "NUNCA", "CALLE",
-    "PLAZA", "PLACA", "ZONAS", "LUGAR",
-    "SITIO", "PUNTO", "PARTE", "ARROZ",
-    "CARNE", "POLLO", "LECHE", "QUESO",
-    "HUEVO", "FRUTA", "VINOS", "CAFES",
-    "JUGOS", "SOPAS", "DULCE", "PERRO",
-    "GATOS", "VACAS", "CERDO", "PATOS",
-    "RATON", "LEONA", "TIGRE", "MONOS",
-    "LOBOS", "ZORRO", "ABEJA", "MOSCA",
-    "FULAR", "ROSAS", "HOJAs", "RAMAS",
-    "RAMEN", "SELVA", "VALLE", "RICOS",
-    "LAGOS", "MARES", "ISLAS", "COSTA",
-    "COCHE", "AUTOS", "MOTOS", "BICIS",
-    "BURRO", "AVION", "BARCO", "TAXIS",
-    "METRO", "RUEDA", "MOTOR", "FRENO",
-    "CASAS", "HOGAR", "TORRE", "PISOS",
-    "SALAS", "BAÑOS", "PATIO", "ROPAS",
-    "FALDA", "BOTAS", "GORRO", "JUEGO",
-    "TENIS", "GOLFO", "BOXEO", "SALTO",
-    "BATES", "RITMO", "NOTAS", "RUIDO",
-    "VOCES", "COROS", "BANDA", "PARRA",
-    "CLASE", "AULAS", "CURSO", "TAREA",
-    "ARTES", "JEFES", "VALOR", "COSTO",
-    "GASTO", "VENTA", "BANCO", "BRUJA",
-    "HORAS", "TRIPA", "EPOCA", "LARGO",
-    "CORTO", "ALTOS", "BAJOS", "ANCHO",
-    "GORDO", "FLACO", "LENTO", "DUROS",
-    "SUAVE", "LISOS", "FINOS", "CLARO",
-    "SUCIO", "NUEVO", "VIEJO", "SECAR"
-          ];
+          "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
+          "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
+          "BRAVO", "CORTE", "DULCE", "VERDE", "RONDA", "SANTO", "TRAJE", "JUNIO",
+          "VISTA", "BUENO", "DOLOR", "DICHO", "LINDO", "SUAVE", "CANTO", "DANZA",
+          "SILLA", "MESAS", "RELOJ", "TECHO", "PARED", "SUELO", "MANOS", "DEDOS",
+          "NARIZ", "PECHO", "AGUAS", "AIRES", "NIEVE", "HIELO", "CALOR", "MADRE",
+          "PADRE", "MUJER", "JOVEN", "VIEJO", "CALMA", "MIEDO", "FELIZ", "ENOJO",
+          "CALMA", "RISAS", "COMER", "BEBER", "ANDAR", "SALIR", "POBRE", "CAMAS",
+          "SOFAS", "PAPEL", "LAPIZ", "PLUMA", "REGLA", "ROJOS", "TRUCO", "ROSAS",
+          "NEGRO", "TRAPO", "CAFES", "LUNES", "ENERO", "MARZO", "JUNIO", "JULIO",
+          "TARDE", "NOCHE", "ANTES", "AHORA", "LUEGO", "ANTES", "NUNCA", "CALLE",
+          "PLAZA", "PLACA", "ZONAS", "LUGAR", "SITIO", "PUNTO", "PARTE", "ARROZ",
+          "CARNE", "POLLO", "LECHE", "QUESO", "HUEVO", "FRUTA", "VINOS", "CAFES",
+          "JUGOS", "SOPAS", "DULCE", "PERRO", "GATOS", "VACAS", "CERDO", "PATOS",
+          "RATON", "LEONA", "TIGRE", "MONOS", "LOBOS", "ZORRO", "ABEJA", "MOSCA",
+          "FULAR", "ROSAS", "HOJAs", "RAMAS", "RAMEN", "SELVA", "VALLE", "RICOS",
+          "LAGOS", "MARES", "ISLAS", "COSTA", "COCHE", "AUTOS", "MOTOS", "BICIS",
+          "BURRO", "AVION", "BARCO", "TAXIS", "METRO", "RUEDA", "MOTOR", "FRENO",
+          "CASAS", "HOGAR", "TORRE", "PISOS", "SALAS", "BAÑOS", "PATIO", "ROPAS",
+          "FALDA", "BOTAS", "GORRO", "JUEGO", "TENIS", "GOLFO", "BOXEO", "SALTO",
+          "BATES", "RITMO", "NOTAS", "RUIDO", "VOCES", "COROS", "BANDA", "PARRA",
+          "CLASE", "AULAS", "CURSO", "TAREA", "ARTES", "JEFES", "VALOR", "COSTO",
+          "GASTO", "VENTA", "BANCO", "BRUJA", "HORAS", "TRIPA", "EPOCA", "LARGO",
+          "CORTO", "ALTOS", "BAJOS", "ANCHO", "GORDO", "FLACO", "LENTO", "DUROS",
+          "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
+        ];
         
-        // Función que genera 4 palabras basándose en la fecha actual
         function getDailyWords() {
-        const today = new Date();
-        // Semilla basada en año, mes y día
-        const seed = today.getFullYear() * 10000 + 
-                 (today.getMonth() + 1) * 100 + 
-                 today.getDate();
-    
-        // Generador de números pseudo-aleatorios con semilla
-        const random = (s) => {
-        const x = Math.sin(s) * 10000;
-        return x - Math.floor(x);
-        };
-    
-        // Seleccionar 4 palabras únicas
-        const selected = [];
-        const used = new Set();
-        let counter = 0;
-    
-        while (selected.length < 4) {
-        const idx = Math.floor(random(seed + counter) * wordPool.length);
-        if (!used.has(idx)) {
-            selected.push(wordPool[idx]);
-            used.add(idx);
+            const today = new Date();
+            const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+            const random = (s) => {
+                const x = Math.sin(s) * 10000;
+                return x - Math.floor(x);
+            };
+            const selected = [];
+            const used = new Set();
+            let counter = 0;
+            while (selected.length < 4) {
+                const idx = Math.floor(random(seed + counter) * wordPool.length);
+                if (!used.has(idx)) {
+                    selected.push(wordPool[idx]);
+                    used.add(idx);
+                }
+                counter++;
+            }
+            return selected;
         }
-        counter++;
-    }
-    
-    return selected;
-}
 
         const targetWords = getDailyWords();
-
         const maxGuesses = 9;
         const wordLength = 5;
 
@@ -227,10 +207,10 @@
         let currentGuess = "";
         let currentRow = 0;
         let boardSolved = [false, false, false, false];
-        let boardSolvedAt = [null, null, null, null]; // Guardamos en qué turno se resolvió cada uno
+        let boardSolvedAt = [null, null, null, null];
         let gameOver = false;
         let disabledLetters = new Set();
-        let guesses = []; // Lista para guardar los intentos
+        let guesses = [];
 
         // INICIALIZACIÓN
         const container = document.getElementById('game-container');
@@ -238,6 +218,12 @@
             let boardDiv = document.createElement('div');
             boardDiv.className = 'board';
             boardDiv.id = `board-${b}`;
+            
+            // --- NUEVO: Wrapper interno para el scroll ---
+            let trackDiv = document.createElement('div');
+            trackDiv.className = 'board-track';
+            trackDiv.id = `board-${b}-track`;
+
             for (let r = 0; r < maxGuesses; r++) {
                 let rowDiv = document.createElement('div');
                 rowDiv.className = 'row';
@@ -248,8 +234,10 @@
                     tile.id = `board-${b}-row-${r}-tile-${t}`;
                     rowDiv.appendChild(tile);
                 }
-                boardDiv.appendChild(rowDiv);
+                trackDiv.appendChild(rowDiv);
             }
+            
+            boardDiv.appendChild(trackDiv);
             container.appendChild(boardDiv);
         }
 
@@ -270,11 +258,15 @@
             button.textContent = display;
             button.className = `key ${className}`;
             button.id = actionId ? `key-${actionId}` : `key-${display}`;
-            button.addEventListener('click', () => handleInput(actionId || display));
+            
+            // Usamos touchend para móviles para evitar el delay del click
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleInput(actionId || display);
+            });
             container.appendChild(button);
         }
 
-        // LOGICA INPUT
         function handleInput(key) {
             if (gameOver) return;
             if (key === 'ENTER') submitGuess();
@@ -303,6 +295,33 @@
                 for (let i = 0; i < wordLength; i++) {
                     const tile = document.getElementById(`board-${b}-row-${currentRow}-tile-${i}`);
                     tile.textContent = currentGuess[i] || "";
+                }
+            }
+        }
+
+        // --- NUEVO: Función para controlar el desplazamiento de los tableros ---
+        function scrollToActiveRow() {
+            // Queremos mantener la fila actual visible.
+            // Si estamos en la fila 0, 1, 2, 3 -> No mover (translateY 0)
+            // Si estamos en la fila 4 -> Mover 1 fila hacia arriba
+            // Altura de fila (row + gap) = aprox 24px (según CSS).
+            
+            const ROW_HEIGHT = 24; // 22px height + 2px gap
+            const VISIBLE_ROWS_COUNT = 4; // Empezamos a scrollear después de la 4ta
+            
+            let scrollIndex = 0;
+            if (currentRow > 3) {
+                // Si vamos por la fila 4, subimos 1 posición, etc.
+                scrollIndex = currentRow - 3;
+            }
+
+            const transformValue = `translateY(-${scrollIndex * ROW_HEIGHT}px)`;
+
+            for (let b = 0; b < 4; b++) {
+                // Aplicar movimiento al track interno
+                const track = document.getElementById(`board-${b}-track`);
+                if (track) {
+                    track.style.transform = transformValue;
                 }
             }
         }
@@ -344,7 +363,7 @@
 
                 if (guess === target) {
                     boardSolved[b] = true;
-                    boardSolvedAt[b] = currentRow + 1; // Guardar turno de victoria
+                    boardSolvedAt[b] = currentRow + 1;
                     document.getElementById(`board-${b}`).classList.add('solved-overlay');
                 }
             }
@@ -365,19 +384,19 @@
                 }
             });
 
-            // --- NUEVO: GUARDAR ESTADO ---
-            guesses.push(currentGuess); // Añadimos la palabra a la lista
-
+            guesses.push(currentGuess);
             const gameState = {
-            date: new Date().toDateString(), // Guardamos la fecha de hoy (ej: "Fri Feb 16 2024")
-            guesses: guesses
+                date: new Date().toDateString(),
+                guesses: guesses
             };
             localStorage.setItem('cuatroPalabrasState', JSON.stringify(gameState));
-            // -----------------------------
 
             currentRow++;
             currentGuess = "";
             showMessage("");
+
+            // --- NUEVO: Actualizar posición de scroll tras adivinar ---
+            scrollToActiveRow();
 
             // FIN DEL JUEGO
             if (boardSolved.every(s => s)) {
@@ -399,31 +418,20 @@
         function endGame() {
             gameOver = true;
             const challengeNum = getChallengeNumber();
-    
-            // Actualizamos el mensaje para que incluya el número de reto
             const messageElement = document.getElementById('message');
             messageElement.innerHTML = `<h3>Reto #${challengeNum}</h3>` + messageElement.innerHTML;
             document.getElementById('share-btn').style.display = 'block';
         }
 
-        // --- LÓGICA DE COMPARTIR ---
         document.getElementById('share-btn').addEventListener('click', () => {
             const emojis = { 'correct': '🟩', 'present': '🟨', 'absent': '⬛', 'empty': '⬜' };
-            
-            // Puntuaciones
             const challengeNum = getChallengeNumber();
             let text = `Cuatro Palabras #${challengeNum} 🧩\n`;
             text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
             text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n\n`;
 
-            // Generar cuadrícula visual
-            // Para ahorrar espacio, ponemos Tablero 0 y 1 juntos, y luego 2 y 3.
-            
-            // Función auxiliar para obtener la línea de emojis de un tablero en una fila específica
             const getRowEmojis = (boardIdx, rowIdx) => {
                 let line = "";
-                // Si la fila es mayor al turno donde se resolvió, mostrar blanco o vacío
-                // (Para simplificar, leemos el DOM directamente)
                 for (let t = 0; t < wordLength; t++) {
                     const tile = document.getElementById(`board-${boardIdx}-row-${rowIdx}-tile-${t}`);
                     if (tile.classList.contains('correct')) line += emojis.correct;
@@ -434,20 +442,14 @@
                 return line;
             };
 
-            // Construir Bloque Superior (Tableros 0 y 1)
             for (let r = 0; r < currentRow; r++) {
-                // Solo añadir fila si al menos uno de los dos tableros estaba activo
-                // (O simplemente mostramos todas las filas jugadas)
                 text += getRowEmojis(0, r) + " " + getRowEmojis(1, r) + "\n";
             }
-            text += "\n"; // Separador
-
-            // Construir Bloque Inferior (Tableros 2 y 3)
+            text += "\n";
             for (let r = 0; r < currentRow; r++) {
                 text += getRowEmojis(2, r) + " " + getRowEmojis(3, r) + "\n";
             }
 
-            // Copiar al portapapeles (Truco para compatibilidad total)
             const textArea = document.createElement("textarea");
             textArea.value = text;
             document.body.appendChild(textArea);
@@ -455,35 +457,32 @@
             try {
                 document.execCommand('copy');
                 showMessage("¡Copiado al portapapeles!");
-            } catch (err) {
-                showMessage("Error al copiar :(");
-            }
+            } catch (err) { showMessage("Error al copiar :("); }
             document.body.removeChild(textArea);
         });
-function loadGame() {
-    const savedData = localStorage.getItem('cuatroPalabrasState');
-    if (!savedData) return; // Si no hay nada guardado, no hacemos nada
 
-    const parsedData = JSON.parse(savedData);
-    const today = new Date().toDateString();
+        function loadGame() {
+            const savedData = localStorage.getItem('cuatroPalabrasState');
+            if (!savedData) return;
 
-    // Si los datos son de ayer (o antes), borramos y empezamos de cero
-    if (parsedData.date !== today) {
-        localStorage.removeItem('cuatroPalabrasState');
-        return;
-    }
+            const parsedData = JSON.parse(savedData);
+            const today = new Date().toDateString();
 
-    // Si los datos son de HOY, restauramos la partida
-    // Truco: Vamos a "re-jugar" automáticamente lo que hizo el usuario
-    parsedData.guesses.forEach(word => {
-        currentGuess = word; // Ponemos la palabra en la variable
-        updateGridDisplay(); //Pinta las letras antes de validar
-        submitGuess();       // Ejecutamos la validación como si hubiera pulsado ENTER
-    });
-}
+            if (parsedData.date !== today) {
+                localStorage.removeItem('cuatroPalabrasState');
+                return;
+            }
 
-// IMPORTANTE: Ejecutar esta función al arrancar
-loadGame();
+            parsedData.guesses.forEach(word => {
+                currentGuess = word;
+                updateGridDisplay();
+                submitGuess();
+            });
+            // --- NUEVO: Asegurarse de que el scroll esté en su sitio al cargar ---
+            scrollToActiveRow();
+        }
+
+        loadGame();
     </script>
 </body>
 </html>
