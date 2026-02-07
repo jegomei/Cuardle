@@ -29,7 +29,13 @@
             /* Espacio dinámico abajo para que el teclado fijo no tape los tableros */
             padding-bottom: calc(18vh + env(safe-area-inset-bottom));
         }
+        .key-exhausted .quad {
+            background-color: #787c7e !important;
+        }
 
+        .key-exhausted .key-label {
+            opacity: 0.5;
+        }
         /* Tablero tipo "Ventana" */
         .board {
             background: white;
@@ -529,15 +535,33 @@
             }
         }
 
-        function updateKeyboard() {
+       function updateKeyboard() {
     for (const letter in keyboardState) {
         const key = document.getElementById(`key-${letter}`);
         if (!key) continue;
 
+        const states = keyboardState[letter];
         const quads = key.querySelectorAll('.quad');
-        keyboardState[letter].forEach((state, idx) => {
+
+        let exhausted = true;
+
+        states.forEach((state, idx) => {
+            // Pintar cuadrantes normalmente
             quads[idx].className = 'quad' + (state ? ` ${state}` : '');
+
+            // Si el tablero NO está resuelto
+            // y la letra NO es absent, aún puede servir
+            if (!boardSolved[idx] && state !== 'absent') {
+                exhausted = false;
+            }
         });
+
+        // Aplicar estilo de letra agotada
+        if (exhausted) {
+            key.classList.add('key-exhausted');
+        } else {
+            key.classList.remove('key-exhausted');
+        }
     }
 }
 
