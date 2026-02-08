@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -247,20 +248,19 @@
     <div class="game-container" id="game-container"></div>
     <div class="keyboard" id="keyboard"></div>
 
-    <script src="validWords.js"></script>
-
     <script>
         // CONFIGURACIÓN
-        const START_DATE = new Date('2026-02-05'); 
-        
-        function getChallengeNumber() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            START_DATE.setHours(0, 0, 0, 0);
-            const diffInTime = today.getTime() - START_DATE.getTime();
-            const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-            return diffInDays + 1;
-        }
+     const START_DATE = new Date('2026-02-05'); 
+
+    function getChallengeNumber() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(START_DATE);
+    start.setHours(0, 0, 0, 0);
+    const diffInTime = today.getTime() - start.getTime();
+    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+    return diffInDays + 1;
+    }
         // Estado del teclado por letra y tablero
         const keyboardState = {};
         const wordPool = [
@@ -291,77 +291,37 @@
           "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
         ];
         
-        function getUsedWordsHistory() {
-            const history = localStorage.getItem('cuatroPalabrasHistory');
-            return history ? JSON.parse(history) : [];
-        }
-
-        function saveUsedWords(words) {
-            const history = getUsedWordsHistory();
-            const today = new Date().toDateString();
-            
-            // Eliminar entrada del mismo día si existe
-            const filtered = history.filter(entry => entry.date !== today);
-            
-            // Agregar las palabras de hoy
-            filtered.push({ date: today, words: words });
-            
-            // Mantener solo los últimos 60 días de historial
-            const recent = filtered.slice(-60);
-            
-            localStorage.setItem('cuatroPalabrasHistory', JSON.stringify(recent));
-        }
-
-        function getAvailableWords() {
-            const history = getUsedWordsHistory();
-            const usedWords = new Set();
-            
-            // Recopilar todas las palabras usadas en el historial
-            history.forEach(entry => {
-                entry.words.forEach(word => usedWords.add(word));
-            });
-            
-            // Filtrar el pool de palabras
-            const available = wordPool.filter(word => !usedWords.has(word));
-            
-            // Si quedan menos de 4 palabras disponibles, resetear el historial
-            if (available.length < 4) {
-                console.log('Pool agotado, reiniciando historial...');
-                localStorage.removeItem('cuatroPalabrasHistory');
-                return [...wordPool];
-            }
-            
-            return available;
-        }
-
         function getDailyWords() {
-        const today = new Date();
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        const random = (s) => {
-            const x = Math.sin(s) * 10000;
-            return x - Math.floor(x);
-        };
-        
-        // Obtener palabras disponibles (excluyendo las ya usadas)
-        const available = getAvailableWords();
-        
-        const selected = [];
-        const used = new Set();
-        let counter = 0;
-        while (selected.length < 4) {
-            const idx = Math.floor(random(seed + counter) * available.length);
-            if (!used.has(idx)) {
-                selected.push(available[idx]);
-                used.add(idx);
-            }
-            counter++;
+    const today = new Date();
+    // Generamos una semilla única basada en el año, mes y día para que sea igual para todos
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    
+    // Función de azar determinista (siempre da los mismos números para la misma semilla)
+    const random = (s) => {
+        const x = Math.sin(s) * 10000;
+        return x - Math.floor(x);
+    };
+    
+    const selected = [];
+    const usedIndices = new Set();
+    let counter = 0;
+
+    // Seleccionamos 4 palabras del pool usando la semilla del día
+    while (selected.length < 4) {
+        const idx = Math.floor(random(seed + counter) * wordPool.length);
+        if (!usedIndices.has(idx)) {
+            // .toUpperCase() para evitar errores con minúsculas y .trim() para limpiar espacios
+            selected.push(wordPool[idx].toUpperCase().trim());
+            usedIndices.add(idx);
         }
+        counter++;
+    }
+    
+    return selected;
+}
         
-        // Guardar las palabras seleccionadas para este día
-        saveUsedWords(selected);
+       
         
-        return selected;
-        }
 
         const targetWords = getDailyWords();
         const maxGuesses = 9;
@@ -530,7 +490,7 @@
             
             for (let b = 0; b < 4; b++) {
                 if (boardSolved[b]) continue;
-                const validWords = window.VALID_WORDS; //LO METO AQUÍ SIN SABER
+                
                 const target = targetWords[b];
                 const guess = currentGuess;
                 let targetChars = target.split('');
