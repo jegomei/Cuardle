@@ -207,7 +207,13 @@
         .board.inspect .board-track {
             transform: none !important;
         }
-
+        /* --- DESACTIVAR SELECCIÓN DE TEXTO (iOS / Android) --- */
+        .board,
+        .board * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none; /* iOS: menú copiar/pegar */
+        }
 
     </style>
 </head>
@@ -701,24 +707,30 @@
         }
 
         document.querySelectorAll('.board').forEach(board => {
-            let pressTimer;
+    let pressTimer;
 
-            board.addEventListener('touchstart', () => {
-                pressTimer = setTimeout(() => {
-                    board.classList.add('inspect');
-                }, 300);
-            });
+    board.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 🔑 evita selección iOS
+        pressTimer = setTimeout(() => {
+            board.classList.add('inspect');
+        }, 300);
+    }, { passive: false });
 
-            board.addEventListener('touchend', () => {
-                clearTimeout(pressTimer);
-                board.classList.remove('inspect');
-            });
+    board.addEventListener('touchend', () => {
+        clearTimeout(pressTimer);
+        board.classList.remove('inspect');
+    });
 
-            board.addEventListener('mouseleave', () => {
-                clearTimeout(pressTimer);
-                board.classList.remove('inspect');
-            });
-        });
+    board.addEventListener('touchcancel', () => {
+        clearTimeout(pressTimer);
+        board.classList.remove('inspect');
+    });
+
+    board.addEventListener('mouseleave', () => {
+        clearTimeout(pressTimer);
+        board.classList.remove('inspect');
+    });
+});
 
 
         loadGame();
