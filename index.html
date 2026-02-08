@@ -196,6 +196,19 @@
             font-weight: bold;
         }
 
+        /* --- MODO HISTORIAL --- */
+        .board.inspect {
+            height: auto;
+            max-height: none;
+            overflow: visible;
+            z-index: 2000;
+        }
+
+        .board.inspect .board-track {
+            transform: none !important;
+        }
+
+
     </style>
 </head>
 <body>
@@ -686,6 +699,27 @@
             // Pequeño timeout para asegurar que el DOM esté pintado
             setTimeout(scrollToActiveRow, 50);
         }
+
+        document.querySelectorAll('.board').forEach(board => {
+            let pressTimer;
+
+            board.addEventListener('touchstart', () => {
+                pressTimer = setTimeout(() => {
+                    board.classList.add('inspect');
+                }, 300);
+            });
+
+            board.addEventListener('touchend', () => {
+                clearTimeout(pressTimer);
+                board.classList.remove('inspect');
+            });
+
+            board.addEventListener('mouseleave', () => {
+                clearTimeout(pressTimer);
+                board.classList.remove('inspect');
+            });
+        });
+
 
         loadGame();
     </script>
