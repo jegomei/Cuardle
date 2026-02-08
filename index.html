@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cuordle</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png"> 
     <link rel="apple-touch-icon" href="favicon.png">
     <style>
         body {
@@ -19,8 +19,9 @@
             padding: 0;
             overscroll-behavior: none;
         }
-        h1 { margin: 10px 0 5px; font-size: 1.5rem; }
         
+        h1 { margin: 10px 0 5px; font-size: 1.5rem; }
+    
         /* Contenedor principal: 2 columnas (2x2) pero ocupando todo el ancho */
         .game-container {
             display: grid;
@@ -32,11 +33,11 @@
             /* Espacio dinámico abajo para que el teclado fijo no tape los tableros */
             padding-bottom: calc(15vh + env(safe-area-inset-bottom));
         }
-        
 
         .key-exhausted .key-label {
             opacity: 0.5;
         }
+        
         /* Tablero tipo "Ventana" */
         .board {
             background: white;
@@ -159,9 +160,6 @@
             background-color: #000000 !important; 
             color: rgb(255, 255, 255) !important;
         }
-
-       
-
     
         /* Efecto al pulsar para que se note el clic */
         .key-delete:active, .key-confirm:active {
@@ -218,7 +216,7 @@
             -webkit-touch-callout: none; /* iOS: menú copiar/pegar */
         }
 
-        /* Estilos para el nuevo logotipo */
+        /* Estilos para el logotipo */
         .logo-container {
             width: 100%;
             display: flex;
@@ -249,80 +247,77 @@
     <div class="keyboard" id="keyboard"></div>
 
     <script>
-        // CONFIGURACIÓN
-     const START_DATE = new Date('2026-02-05'); 
+        //----------- CONFIGURACIÓN-------------//
+        const START_DATE = new Date('2026-02-05'); 
 
-    function getChallengeNumber() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const start = new Date(START_DATE);
-    start.setHours(0, 0, 0, 0);
-    const diffInTime = today.getTime() - start.getTime();
-    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-    return diffInDays + 1;
-    }
+        function getChallengeNumber() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const start = new Date(START_DATE);
+        start.setHours(0, 0, 0, 0);
+        const diffInTime = today.getTime() - start.getTime();
+        const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+        return diffInDays + 1;
+        }
         // Estado del teclado por letra y tablero
         const keyboardState = {};
         const wordPool = [
-          "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
-          "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
-          "BRAVO", "CORTE", "DULCE", "VERDE", "RONDA", "SANTO", "TRAJE", "JUNIO",
-          "VISTA", "BUENO", "DOLOR", "DICHO", "LINDO", "SUAVE", "CANTO", "DANZA",
-          "SILLA", "MESAS", "RELOJ", "TECHO", "PARED", "SUELO", "MANOS", "DEDOS",
-          "NARIZ", "PECHO", "AGUAS", "AIRES", "NIEVE", "HIELO", "CALOR", "MADRE",
-          "PADRE", "MUJER", "JOVEN", "VIEJO", "CALMA", "MIEDO", "FELIZ", "ENOJO",
-          "CALMA", "RISAS", "COMER", "BEBER", "ANDAR", "SALIR", "POBRE", "CAMAS",
-          "SOFAS", "PAPEL", "LAPIZ", "PLUMA", "REGLA", "ROJOS", "TRUCO", "ROSAS",
-          "NEGRO", "TRAPO", "CAFES", "LUNES", "ENERO", "MARZO", "JUNIO", "JULIO",
-          "TARDE", "NOCHE", "ANTES", "AHORA", "LUEGO", "ANTES", "NUNCA", "CALLE",
-          "PLAZA", "PLACA", "ZONAS", "LUGAR", "SITIO", "PUNTO", "PARTE", "ARROZ",
-          "CARNE", "POLLO", "LECHE", "QUESO", "HUEVO", "FRUTA", "VINOS", "CAFES",
-          "JUGOS", "SOPAS", "DULCE", "PERRO", "GATOS", "VACAS", "CERDO", "PATOS",
-          "RATON", "LEONA", "TIGRE", "MONOS", "LOBOS", "ZORRO", "ABEJA", "MOSCA",
-          "FULAR", "ROSAS", "HOJAs", "RAMAS", "RAMEN", "SELVA", "VALLE", "RICOS",
-          "LAGOS", "MARES", "ISLAS", "COSTA", "COCHE", "AUTOS", "MOTOS", "BICIS",
-          "BURRO", "AVION", "BARCO", "TAXIS", "METRO", "RUEDA", "MOTOR", "FRENO",
-          "CASAS", "HOGAR", "TORRE", "PISOS", "SALAS", "BAÑOS", "PATIO", "ROPAS",
-          "FALDA", "BOTAS", "GORRO", "JUEGO", "TENIS", "GOLFO", "BOXEO", "SALTO",
-          "BATES", "RITMO", "NOTAS", "RUIDO", "VOCES", "COROS", "BANDA", "PARRA",
-          "CLASE", "AULAS", "CURSO", "TAREA", "ARTES", "JEFES", "VALOR", "COSTO",
-          "GASTO", "VENTA", "BANCO", "BRUJA", "HORAS", "TRIPA", "EPOCA", "LARGO",
-          "CORTO", "ALTOS", "BAJOS", "ANCHO", "GORDO", "FLACO", "LENTO", "DUROS",
-          "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
-        ];
+            "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
+            "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
+            "BRAVO", "CORTE", "DULCE", "VERDE", "RONDA", "SANTO", "TRAJE", "JUNIO",
+            "VISTA", "BUENO", "DOLOR", "DICHO", "LINDO", "SUAVE", "CANTO", "DANZA",
+            "SILLA", "MESAS", "RELOJ", "TECHO", "PARED", "SUELO", "MANOS", "DEDOS",
+            "NARIZ", "PECHO", "AGUAS", "AIRES", "NIEVE", "HIELO", "CALOR", "MADRE",
+            "PADRE", "MUJER", "JOVEN", "VIEJO", "CALMA", "MIEDO", "FELIZ", "ENOJO",
+            "CALMA", "RISAS", "COMER", "BEBER", "ANDAR", "SALIR", "POBRE", "CAMAS",
+            "SOFAS", "PAPEL", "LAPIZ", "PLUMA", "REGLA", "ROJOS", "TRUCO", "ROSAS",
+            "NEGRO", "TRAPO", "CAFES", "LUNES", "ENERO", "MARZO", "JUNIO", "JULIO",
+            "TARDE", "NOCHE", "ANTES", "AHORA", "LUEGO", "ANTES", "NUNCA", "CALLE",
+            "PLAZA", "PLACA", "ZONAS", "LUGAR", "SITIO", "PUNTO", "PARTE", "ARROZ",
+            "CARNE", "POLLO", "LECHE", "QUESO", "HUEVO", "FRUTA", "VINOS", "CAFES",
+            "JUGOS", "SOPAS", "DULCE", "PERRO", "GATOS", "VACAS", "CERDO", "PATOS",
+            "RATON", "LEONA", "TIGRE", "MONOS", "LOBOS", "ZORRO", "ABEJA", "MOSCA",
+            "FULAR", "ROSAS", "HOJAs", "RAMAS", "RAMEN", "SELVA", "VALLE", "RICOS",
+            "LAGOS", "MARES", "ISLAS", "COSTA", "COCHE", "AUTOS", "MOTOS", "BICIS",
+            "BURRO", "AVION", "BARCO", "TAXIS", "METRO", "RUEDA", "MOTOR", "FRENO",
+            "CASAS", "HOGAR", "TORRE", "PISOS", "SALAS", "BAÑOS", "PATIO", "ROPAS",
+            "FALDA", "BOTAS", "GORRO", "JUEGO", "TENIS", "GOLFO", "BOXEO", "SALTO",
+            "BATES", "RITMO", "NOTAS", "RUIDO", "VOCES", "COROS", "BANDA", "PARRA",
+            "CLASE", "AULAS", "CURSO", "TAREA", "ARTES", "JEFES", "VALOR", "COSTO",
+            "GASTO", "VENTA", "BANCO", "BRUJA", "HORAS", "TRIPA", "EPOCA", "LARGO",
+            "CORTO", "ALTOS", "BAJOS", "ANCHO", "GORDO", "FLACO", "LENTO", "DUROS",
+            "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
+        ];    
         
         function getDailyWords() {
-    const today = new Date();
-    // Generamos una semilla única basada en el año, mes y día para que sea igual para todos
-    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    
-    // Función de azar determinista (siempre da los mismos números para la misma semilla)
-    const random = (s) => {
-        const x = Math.sin(s) * 10000;
-        return x - Math.floor(x);
-    };
-    
-    const selected = [];
-    const usedIndices = new Set();
-    let counter = 0;
+        const today = new Date();
+        // Generamos una semilla única basada en el año, mes y día para que sea igual para todos
+        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        
+        // Función de azar determinista (siempre da los mismos números para la misma semilla)
+        const random = (s) => {
+            const x = Math.sin(s) * 10000;
+            return x - Math.floor(x);
+        };
+        
+        const selected = [];
+        const usedIndices = new Set();
+        let counter = 0;
 
-    // Seleccionamos 4 palabras del pool usando la semilla del día
-    while (selected.length < 4) {
-        const idx = Math.floor(random(seed + counter) * wordPool.length);
-        if (!usedIndices.has(idx)) {
-            // .toUpperCase() para evitar errores con minúsculas y .trim() para limpiar espacios
-            selected.push(wordPool[idx].toUpperCase().trim());
-            usedIndices.add(idx);
+        // Seleccionamos 4 palabras del pool usando la semilla del día
+        while (selected.length < 4) {
+            const idx = Math.floor(random(seed + counter) * wordPool.length);
+            if (!usedIndices.has(idx)) {
+                // .toUpperCase() para evitar errores con minúsculas y .trim() para limpiar espacios
+                selected.push(wordPool[idx].toUpperCase().trim());
+                usedIndices.add(idx);
+            }
+            counter++;
         }
-        counter++;
-    }
-    
-    return selected;
-}
         
-       
+        return selected;
+        }
         
-
         const targetWords = getDailyWords();
         const maxGuesses = 9;
         const wordLength = 5;
@@ -364,11 +359,10 @@
             boardDiv.appendChild(trackDiv);
             container.appendChild(boardDiv);
         }
+        
         // -----------TECLADO ----------//
-       
         const keyboardContainer = document.getElementById('keyboard');
         const layout = ["QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"];
-
         layout.forEach((rowString, i) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'kb-row';
@@ -378,12 +372,10 @@
             // Añadimos la clase 'key-delete' para el color
             createKey(rowDiv, '⌫', 'key-wide key-delete', 'BACKSPACE');
         }
-
         // Añadimos las letras normales
         for (let char of rowString) {
             createKey(rowDiv, char, '');
         }
-
         // 2. Si es la última fila, añadimos ENTER a la DERECHA
         if (i === 2) {
             // Añadimos la clase 'key-confirm' para el color
@@ -464,24 +456,24 @@
             const rowHeight = firstTile.offsetHeight + 2; 
             
             for (let b = 0; b < 4; b++) {
-        const track = document.getElementById(`board-${b}-track`);
-        if (!track) continue;
+            const track = document.getElementById(`board-${b}-track`);
+            if (!track) continue;
 
-        // 🚫 Si el tablero está resuelto, NO se hace scroll
-        if (boardSolved[b]) {
-            track.style.transform = 'translateY(0)';
-            continue;
+            // 🚫 Si el tablero está resuelto, NO se hace scroll
+            if (boardSolved[b]) {
+                track.style.transform = 'translateY(0)';
+                continue;
+            }
+
+            let scrollIndex = 0;
+            //si pasamos de la fila 3, hacemos scroll
+            if (currentRow > 3) {
+                scrollIndex = currentRow - 4;
+            }
+
+            track.style.transform = `translateY(-${scrollIndex * rowHeight}px)`;
+            }
         }
-
-        let scrollIndex = 0;
-//si pasamos de la fila 3, hacemos scroll
-        if (currentRow > 3) {
-            scrollIndex = currentRow - 4;
-        }
-
-        track.style.transform = `translateY(-${scrollIndex * rowHeight}px)`;
-    }
-}
 
         function submitGuess() {
             if (currentGuess.length !== wordLength) { showMessage("¡Faltan letras!"); return; }
@@ -584,34 +576,34 @@
         }
 
        function updateKeyboard() {
-    for (const letter in keyboardState) {
-        const key = document.getElementById(`key-${letter}`);
-        if (!key) continue;
+            for (const letter in keyboardState) {
+            const key = document.getElementById(`key-${letter}`);
+            if (!key) continue;
 
-        const states = keyboardState[letter];
-        const quads = key.querySelectorAll('.quad');
+            const states = keyboardState[letter];
+            const quads = key.querySelectorAll('.quad');
 
-        let exhausted = true;
+            let exhausted = true;
 
-        states.forEach((state, idx) => {
-            // Pintar cuadrantes normalmente
-            quads[idx].className = 'quad' + (state ? ` ${state}` : '');
+            states.forEach((state, idx) => {
+                // Pintar cuadrantes normalmente
+                quads[idx].className = 'quad' + (state ? ` ${state}` : '');
 
-            // Si el tablero NO está resuelto
-            // y la letra NO es absent, aún puede servir
-            if (!boardSolved[idx] && state !== 'absent') {
-                exhausted = false;
+                // Si el tablero NO está resuelto
+                // y la letra NO es absent, aún puede servir
+                if (!boardSolved[idx] && state !== 'absent') {
+                    exhausted = false;
+                }
+            });
+
+            // Aplicar estilo de letra agotada
+            if (exhausted) {
+                key.classList.add('key-exhausted');
+            } else {
+                key.classList.remove('key-exhausted');
             }
-        });
-
-        // Aplicar estilo de letra agotada
-        if (exhausted) {
-            key.classList.add('key-exhausted');
-        } else {
-            key.classList.remove('key-exhausted');
+            }
         }
-    }
-}
 
 
         function showMessage(msg) {
@@ -689,30 +681,30 @@
         }
 
         document.querySelectorAll('.board').forEach(board => {
-    let pressTimer;
+        let pressTimer;
 
-    board.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // 🔑 evita selección iOS
-        pressTimer = setTimeout(() => {
-            board.classList.add('inspect');
-        }, 300);
-    }, { passive: false });
+        board.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 🔑 evita selección iOS
+            pressTimer = setTimeout(() => {
+                board.classList.add('inspect');
+            }, 300);
+        }, { passive: false });
 
-    board.addEventListener('touchend', () => {
-        clearTimeout(pressTimer);
-        board.classList.remove('inspect');
-    });
+        board.addEventListener('touchend', () => {
+            clearTimeout(pressTimer);
+            board.classList.remove('inspect');
+        });
 
-    board.addEventListener('touchcancel', () => {
-        clearTimeout(pressTimer);
-        board.classList.remove('inspect');
-    });
+        board.addEventListener('touchcancel', () => {
+            clearTimeout(pressTimer);
+            board.classList.remove('inspect');
+        });
 
-    board.addEventListener('mouseleave', () => {
-        clearTimeout(pressTimer);
-        board.classList.remove('inspect');
-    });
-});
+        board.addEventListener('mouseleave', () => {
+            clearTimeout(pressTimer);
+            board.classList.remove('inspect');
+        });
+        });
 
 
         loadGame();
