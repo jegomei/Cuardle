@@ -633,13 +633,25 @@
             const messageElement = document.getElementById('message');
             messageElement.innerHTML = `<h3>Reto #${challengeNum}</h3>` + messageElement.innerHTML;
             document.getElementById('share-btn').style.display = 'block';
-             // AÑADE ESTAS 3 LÍNEAS:
+            
+            // Ocultar el teclado
             document.querySelector('.keyboard').style.display = 'none';
+            
+            // Eliminar el padding inferior del contenedor
             document.querySelector('.game-container').style.paddingBottom = '10px';
+            
+            // Expandir los tableros SOLO hasta la fila actual jugada
             document.querySelectorAll('.board').forEach(board => {
-                board.style.height = 'auto';
+                const tileSize = getComputedStyle(board).getPropertyValue('--tile-size');
+                const rowsToShow = currentRow; // Número de filas jugadas
+                const newHeight = `calc(${tileSize} * ${rowsToShow} + ${rowsToShow * 2 + 8}px)`;
+                board.style.height = newHeight;
                 board.style.maxHeight = 'none';
-                board.style.overflow = 'visible';
+            });
+            
+            // Resetear el transform de todos los board-track para que muestren desde arriba
+            document.querySelectorAll('.board-track').forEach(track => {
+                track.style.transform = 'translateY(0)';
             });
         }
 
