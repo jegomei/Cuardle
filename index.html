@@ -247,6 +247,8 @@
     <div class="game-container" id="game-container"></div>
     <div class="keyboard" id="keyboard"></div>
 
+    <script src="validWords.js"></script>
+
     <script>
         // CONFIGURACIÓN
         const START_DATE = new Date('2026-02-05'); 
@@ -528,7 +530,7 @@
             
             for (let b = 0; b < 4; b++) {
                 if (boardSolved[b]) continue;
-                
+                const validWords = window.VALID_WORDS; //LO METO AQUÍ SIN SABER
                 const target = targetWords[b];
                 const guess = currentGuess;
                 let targetChars = target.split('');
