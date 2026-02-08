@@ -261,64 +261,39 @@
         }
         // Estado del teclado por letra y tablero
         const keyboardState = {};
-        const wordPool = [
-            "CASAS", "MUNDO", "LIBRO", "MONTE", "PLAYA", "NOCHE", "CAMPO", "FUEGO",
-            "PIANO", "BARCO", "PERRO", "GATOS", "CIELO", "PULPO", "TIGRE", "MENTE",
-            "BRAVO", "CORTE", "DULCE", "VERDE", "RONDA", "SANTO", "TRAJE", "JUNIO",
-            "VISTA", "BUENO", "DOLOR", "DICHO", "LINDO", "SUAVE", "CANTO", "DANZA",
-            "SILLA", "MESAS", "RELOJ", "TECHO", "PARED", "SUELO", "MANOS", "DEDOS",
-            "NARIZ", "PECHO", "AGUAS", "AIRES", "NIEVE", "HIELO", "CALOR", "MADRE",
-            "PADRE", "MUJER", "JOVEN", "VIEJO", "CALMA", "MIEDO", "FELIZ", "ENOJO",
-            "CALMA", "RISAS", "COMER", "BEBER", "ANDAR", "SALIR", "POBRE", "CAMAS",
-            "SOFAS", "PAPEL", "LAPIZ", "PLUMA", "REGLA", "ROJOS", "TRUCO", "ROSAS",
-            "NEGRO", "TRAPO", "CAFES", "LUNES", "ENERO", "MARZO", "JUNIO", "JULIO",
-            "TARDE", "NOCHE", "ANTES", "AHORA", "LUEGO", "ANTES", "NUNCA", "CALLE",
-            "PLAZA", "PLACA", "ZONAS", "LUGAR", "SITIO", "PUNTO", "PARTE", "ARROZ",
-            "CARNE", "POLLO", "LECHE", "QUESO", "HUEVO", "FRUTA", "VINOS", "CAFES",
-            "JUGOS", "SOPAS", "DULCE", "PERRO", "GATOS", "VACAS", "CERDO", "PATOS",
-            "RATON", "LEONA", "TIGRE", "MONOS", "LOBOS", "ZORRO", "ABEJA", "MOSCA",
-            "FULAR", "ROSAS", "HOJAs", "RAMAS", "RAMEN", "SELVA", "VALLE", "RICOS",
-            "LAGOS", "MARES", "ISLAS", "COSTA", "COCHE", "AUTOS", "MOTOS", "BICIS",
-            "BURRO", "AVION", "BARCO", "TAXIS", "METRO", "RUEDA", "MOTOR", "FRENO",
-            "CASAS", "HOGAR", "TORRE", "PISOS", "SALAS", "BAÑOS", "PATIO", "ROPAS",
-            "FALDA", "BOTAS", "GORRO", "JUEGO", "TENIS", "GOLFO", "BOXEO", "SALTO",
-            "BATES", "RITMO", "NOTAS", "RUIDO", "VOCES", "COROS", "BANDA", "PARRA",
-            "CLASE", "AULAS", "CURSO", "TAREA", "ARTES", "JEFES", "VALOR", "COSTO",
-            "GASTO", "VENTA", "BANCO", "BRUJA", "HORAS", "TRIPA", "EPOCA", "LARGO",
-            "CORTO", "ALTOS", "BAJOS", "ANCHO", "GORDO", "FLACO", "LENTO", "DUROS",
-            "SUAVE", "LISOS", "FINOS", "CLARO", "SUCIO", "NUEVO", "VIEJO", "SECAR"
-        ];    
         
-        function getDailyWords() {
-        const today = new Date();
-        // Generamos una semilla única basada en el año, mes y día para que sea igual para todos
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        
-        // Función de azar determinista (siempre da los mismos números para la misma semilla)
-        const random = (s) => {
-            const x = Math.sin(s) * 10000;
-            return x - Math.floor(x);
-        };
-        
-        const selected = [];
-        const usedIndices = new Set();
-        let counter = 0;
-
-        // Seleccionamos 4 palabras del pool usando la semilla del día
-        while (selected.length < 4) {
-            const idx = Math.floor(random(seed + counter) * wordPool.length);
-            if (!usedIndices.has(idx)) {
-                // .toUpperCase() para evitar errores con minúsculas y .trim() para limpiar espacios
-                selected.push(wordPool[idx].toUpperCase().trim());
-                usedIndices.add(idx);
+        let wordPool = [];
+        // Cargar palabras objetivo desde archivo
+        async function cargarPalabrasObjetivo() {
+            try {
+                const response = await fetch('palabras-objetivo.json');
+                const data = await response.json();
+                wordPool = data.palabras;
+                console.log(`${wordPool.length} retos cargados`);
+            } catch (error) {
+                console.error('Error cargando palabras objetivo:', error);
+                // Fallback: usar palabras por defecto si falla
+                wordPool = [
+                    ["salas", "morir", "muros", "pulir"],
+                    ["grano", "barbo", "obrar", "bravo"]
+                ];
             }
-            counter++;
         }
+
+        function getDailyWords() {
+    const challengeNum = getChallengeNumber();
+    
+    // Usar el número de reto como índice (con ciclo si supera el total)
+    const retoIndex = (challengeNum - 1) % wordPool.length;
+    
+    // wordPool[retoIndex] ya es un array de 4 palabras
+    const reto = wordPool[retoIndex];
+    
+    // Convertir cada palabra a mayúsculas para que coincida con currentGuess
+    return reto.map(palabra => palabra.toUpperCase().trim());
+}
         
-        return selected;
-        }
-        
-        const targetWords = getDailyWords();
+        let targetWords = [];
         const maxGuesses = 9;
         const wordLength = 5;
 
@@ -346,8 +321,7 @@
                             }
                         }
 
-                        // Llamar al cargar la página
-                        cargarDiccionario();
+                        
         
         
         let disabledLetters = new Set();
@@ -685,27 +659,30 @@
             document.body.removeChild(textArea);
         });
 
-        function loadGame() {
-            const savedData = localStorage.getItem('cuatroPalabrasState');
-            if (!savedData) return;
+       function loadGame() {
+    // Inicializar las palabras objetivo del día
+    targetWords = getDailyWords();
+    
+    const savedData = localStorage.getItem('cuatroPalabrasState');
+    if (!savedData) return;
 
-            const parsedData = JSON.parse(savedData);
-            const today = new Date().toDateString();
+    const parsedData = JSON.parse(savedData);
+    const today = new Date().toDateString();
 
-            if (parsedData.date !== today) {
-                localStorage.removeItem('cuatroPalabrasState');
-                return;
-            }
+    if (parsedData.date !== today) {
+        localStorage.removeItem('cuatroPalabrasState');
+        return;
+    }
 
-            parsedData.guesses.forEach(word => {
-                currentGuess = word;
-                updateGridDisplay();
-                submitGuess();
-            });
-            // Restaurar posición de scroll al cargar
-            // Pequeño timeout para asegurar que el DOM esté pintado
-            setTimeout(scrollToActiveRow, 50);
-        }
+    parsedData.guesses.forEach(word => {
+        currentGuess = word;
+        updateGridDisplay();
+        submitGuess();
+    });
+    // Restaurar posición de scroll al cargar
+    // Pequeño timeout para asegurar que el DOM esté pintado
+    setTimeout(scrollToActiveRow, 50);
+}
 
         document.querySelectorAll('.board').forEach(board => {
         let pressTimer;
@@ -733,7 +710,10 @@
         });
         });
 
-        cargarDiccionario().then(() => {
+        Promise.all([
+            cargarDiccionario(),
+            cargarPalabrasObjetivo()
+        ]).then(() => {
             loadGame();
         });
     </script>
