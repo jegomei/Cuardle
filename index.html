@@ -633,12 +633,20 @@
             const messageElement = document.getElementById('message');
             messageElement.innerHTML = `<h3>Reto #${challengeNum}</h3>` + messageElement.innerHTML;
             document.getElementById('share-btn').style.display = 'block';
+             // AÑADE ESTAS 3 LÍNEAS:
+            document.querySelector('.keyboard').style.display = 'none';
+            document.querySelector('.game-container').style.paddingBottom = '10px';
+            document.querySelectorAll('.board').forEach(board => {
+                board.style.height = 'auto';
+                board.style.maxHeight = 'none';
+                board.style.overflow = 'visible';
+            });
         }
 
         document.getElementById('share-btn').addEventListener('click', () => {
             const emojis = { 'correct': '🟩', 'present': '🟨', 'absent': '⬛', 'empty': '⬜' };
             const challengeNum = getChallengeNumber();
-            let text = `Cuardle #${challengeNum} 🧩\n`;
+            let text = `Cuordle #${challengeNum} 🧩\n`;
             text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
             text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n\n`;
 
