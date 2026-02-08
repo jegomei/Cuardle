@@ -328,6 +328,28 @@
         let boardSolved = [false, false, false, false];
         let boardSolvedAt = [null, null, null, null];
         let gameOver = false;
+                        
+                        
+                        // Lista de palabras válidas en español
+                        let palabrasValidas = new Set();
+
+                        // Cargar el diccionario
+                        async function cargarDiccionario() {
+                            try {
+                                const response = await fetch('palabras.txt'); // o el nombre de tu archivo
+                                const texto = await response.text();
+                                const palabras = texto.split('\n').map(p => p.trim().toLowerCase());
+                                palabrasValidas = new Set(palabras);
+                                console.log(`${palabrasValidas.size} palabras cargadas`);
+                            } catch (error) {
+                                console.error('Error cargando diccionario:', error);
+                            }
+                        }
+
+                        // Llamar al cargar la página
+                        cargarDiccionario();
+        
+        
         let disabledLetters = new Set();
         let guesses = [];
 
@@ -477,7 +499,12 @@
 
         function submitGuess() {
             if (currentGuess.length !== wordLength) { showMessage("¡Faltan letras!"); return; }
-
+            
+            // Validar que la palabra existe en el diccionario
+            if (!palabrasValidas.has(currentGuess.toLowerCase())) {
+                showMessage("Palabra no válida");
+                return;
+            }
 
             
             for (let b = 0; b < 4; b++) {
@@ -706,8 +733,9 @@
         });
         });
 
-
-        loadGame();
+        cargarDiccionario().then(() => {
+            loadGame();
+        });
     </script>
 </body>
 </html>
