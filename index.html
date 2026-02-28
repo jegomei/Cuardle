@@ -659,8 +659,20 @@
             const emojis = { 'correct': '🟩', 'present': '🟨', 'absent': '⬛', 'empty': '⬜' };
             const challengeNum = getChallengeNumber();
             let text = `Cuordle #${challengeNum} 🧩\n`;
-            text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
-            text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n\n`;
+           
+            // Mostrar intentos o 💀
+                text += `${boardSolvedAt[0] || '💀'} ${boardSolvedAt[1] || '💀'}\n`;
+                text += `${boardSolvedAt[2] || '💀'} ${boardSolvedAt[3] || '💀'}\n`;
+
+                // Calcular total (si no resuelto = 11)
+                const score0 = boardSolvedAt[0] || 11;
+                const score1 = boardSolvedAt[1] || 11;
+                const score2 = boardSolvedAt[2] || 11;
+                const score3 = boardSolvedAt[3] || 11;
+
+                const totalScore = score0 + score1 + score2 + score3;
+
+                text += `\nTotal: ${totalScore}\n\n`;
 
             const getRowEmojis = (boardIdx, rowIdx) => {
                 let line = "";
