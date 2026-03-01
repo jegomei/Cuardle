@@ -1,0 +1,224 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
+}
+
+h1 { margin: 10px 0 5px; font-size: 1.5rem; }
+
+/* Contenedor principal: 2 columnas (2x2) pero ocupando todo el ancho */
+.game-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2x2 */
+    gap: 6px; /* Espacio reducido entre tableros */
+    padding: 5px; /* Margen mínimo lateral */
+    width: 100%;
+    box-sizing: border-box;
+    /* Espacio dinámico abajo para que el teclado fijo no tape los tableros */
+    padding-bottom: calc(15vh + env(safe-area-inset-bottom));
+}
+
+.key-exhausted .key-label {
+    opacity: 0.5;
+}
+
+/* Tablero tipo "Ventana" */
+.board {
+    background: white;
+    padding: 4px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden; /* Oculta las filas sobrantes */
+    position: relative;
+    /* Tamaños calculados según ancho de pantalla para que sean responsivos */
+    --board-width: calc((100vw - 10px) / 2); /* aproximación: dos columnas */
+    --tile-size: calc((var(--board-width) - 18px) / 5);
+    height: calc(var(--tile-size) * 5 + 10px); /* mostrar ~5 filas */
+    min-height: 150px;
+}
+
+/* Riel interno que se mueve */
+.board-track {
+    display: grid;
+    grid-template-rows: repeat(9, var(--tile-size));
+    gap: 2px;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+}
+
+.tile {
+    aspect-ratio: 1 / 1;
+    background: white;
+    border: 1.5px solid #d3d6da;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    font-size: clamp(12px, calc(var(--tile-size) * 0.32), 20px);
+    width: calc(var(--tile-size));
+    height: calc(var(--tile-size));
+}
+
+/* Colores */
+.correct { background-color: #6aaa64; color: white; border-color: #6aaa64; }
+.present { background-color: #c9b458; color: white; border-color: #c9b458; }
+.absent  { background-color: #787c7e; color: white; border-color: #787c7e; }
+.solved-overlay { opacity: 0.5; }
+
+#message {
+    font-weight: bold;
+    font-size: 1rem;
+    min-height: 14px;
+    margin: 2px 0;
+    color: #333;
+    text-align: center;
+}
+
+/* BOTÓN COMPARTIR */
+#share-btn {
+    display: none;
+    background-color: #6aaa64;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+#share-btn:hover { background-color: #538d4e; }
+
+/* TECLADO FIJO ABAJO */
+.keyboard {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #e2e4e6;
+    padding: 8px 0;
+    /* Respetar área segura del iPhone */
+    padding-bottom: calc(6vh + env(safe-area-inset-bottom));
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.kb-row { display: flex; gap: 3px; justify-content: center; width: 100%; max-width: 600px; padding: 0 8px; }
+:root { --key-size: clamp(42px, 8vw, 64px); }
+.key {
+    min-width: 0;
+    font-weight: bold; border: none; padding: 0; cursor: pointer;
+    background-color: #d1d2d4; border-radius: 6px; color: black;
+    height: var(--key-size);
+    flex: 1; display: flex;
+    justify-content: center; align-items: center; font-size: clamp(0.9rem, 3vw, 1.1rem);
+    user-select: none; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.key-wide { flex: 1.5; }
+.key:active { background-color: #bbb; transform: translateY(1px); }
+.key.disabled { background-color: #ede7e7; color: #aaa6a6; pointer-events: none; }
+.key-exhausted .quad {
+    background-color: #e7eef1 !important;
+}
+
+/* Color para la tecla BORRAR (Backspace) */
+.key-delete {
+    background-color: #000000 !important;
+    color: rgb(255, 255, 255) !important;
+}
+
+/* Color para la tecla ENTER */
+.key-confirm {
+    background-color: #000000 !important;
+    color: rgb(255, 255, 255) !important;
+}
+
+/* Efecto al pulsar para que se note el clic */
+.key-delete:active, .key-confirm:active {
+    filter: brightness(1.2);
+}
+
+/* --- TECLADO 2x2 POR TABLERO --- */
+.key-multi {
+    position: relative;
+    overflow: hidden;
+}
+
+.key-grid {
+    position: absolute;
+    inset: 2px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1px;
+    z-index: 1;
+}
+
+.quad {
+    background-color: #cfd2d6;
+    border-radius: 2px;
+}
+
+.quad.correct { background-color: #6aaa64; }
+.quad.present { background-color: #c9b458; }
+.quad.absent  { background-color: #aeb5bc; }
+
+.key-label {
+    position: relative;
+    z-index: 2;
+    font-weight: bold;
+}
+
+/* --- MODO HISTORIAL --- */
+.board.inspect {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    z-index: 2000;
+}
+
+.board.inspect .board-track {
+    transform: none !important;
+}
+
+/* --- DESACTIVAR SELECCIÓN DE TEXTO (iOS / Android) --- */
+.board,
+.board * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS: menú copiar/pegar */
+}
+
+/* Estilos para el logotipo */
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 6px 24px;
+}
+
+.logo-img {
+    max-width: 100%;
+    height: auto;
+    max-height: 48px;
+    object-fit: contain;
+}
