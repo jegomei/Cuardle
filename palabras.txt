@@ -61,6 +61,7 @@ abril
 abrio
 abrir
 abris
+abrió
 absit
 abubo
 abuce
@@ -76,6 +77,7 @@ abuzo
 acaba
 acabe
 acabo
+acabó
 acama
 acame
 acamo
@@ -152,6 +154,7 @@ actos
 actua
 actue
 actuo
+actúa
 acuda
 acude
 acudi
@@ -193,6 +196,7 @@ adies
 adios
 adiva
 adive
+adiós
 adoba
 adobe
 adobo
@@ -493,6 +497,7 @@ algia
 algol
 algos
 algun
+algún
 alhoz
 aliad
 alian
@@ -854,6 +859,7 @@ apuño
 aquea
 aquel
 aqueo
+aquél
 araba
 arabe
 arabi
@@ -1156,6 +1162,7 @@ atras
 atril
 atrio
 atroz
+atrás
 atufa
 atufe
 atufo
@@ -1233,6 +1240,7 @@ aviso
 aviva
 avive
 avivo
+avión
 avoca
 avoco
 avugo
@@ -1267,6 +1275,7 @@ azaro
 azcon
 azeri
 azimo
+aznar
 azoad
 azoan
 azoar
@@ -1296,6 +1305,7 @@ azulo
 azuts
 azuza
 azuzo
+aérea
 añada
 añade
 añadi
@@ -1360,6 +1370,7 @@ bagre
 bague
 bahai
 bahia
+bahía
 baida
 baifa
 baifo
@@ -1404,6 +1415,7 @@ balsa
 balso
 balta
 balto
+balón
 bamba
 bambi
 bambu
@@ -2209,6 +2221,8 @@ cazas
 cazon
 cazos
 cazuz
+caída
+caído
 cañad
 cañal
 cañan
@@ -2324,6 +2338,7 @@ cerpa
 cerra
 cerre
 cerro
+cerró
 cesad
 cesan
 cesar
@@ -2697,6 +2712,7 @@ colos
 colpa
 colpe
 colza
+colón
 comal
 coman
 comas
@@ -2717,6 +2733,7 @@ compi
 comta
 comto
 comun
+común
 conca
 conde
 conga
@@ -2725,6 +2742,7 @@ conos
 conta
 conte
 conto
+contó
 coona
 copad
 copal
@@ -2867,6 +2885,8 @@ cresa
 creso
 creta
 creyo
+creyó
+creía
 criad
 crian
 criar
@@ -3087,6 +3107,8 @@ cuñas
 cuñen
 cuñes
 cuños
+cádiz
+césar
 daban
 dabas
 dable
@@ -3126,6 +3148,8 @@ dardo
 dares
 darga
 daria
+darle
+darse
 datad
 datan
 datar
@@ -3159,9 +3183,11 @@ debes
 debia
 debil
 debio
+debió
 debla
 debos
 debut
+debía
 decae
 decai
 decia
@@ -3169,6 +3195,7 @@ decid
 decir
 decis
 decor
+decía
 dedal
 dedeo
 dedil
@@ -3191,6 +3218,7 @@ dello
 delta
 demas
 demos
+demás
 dende
 densa
 denso
@@ -3280,6 +3308,7 @@ dique
 diran
 diras
 diria
+diría
 disca
 disco
 dison
@@ -3447,6 +3476,9 @@ duras
 duren
 dures
 duros
+débil
+dólar
+dónde
 eagle
 ebano
 ebola
@@ -3499,6 +3531,7 @@ elega
 elegi
 elego
 elemi
+elena
 elepe
 eleta
 eleto
@@ -3564,11 +3597,13 @@ entes
 entra
 entre
 entro
+entró
 enula
 enves
 envia
 envie
 envio
+envió
 enzas
 eolia
 eolio
@@ -3655,6 +3690,9 @@ estor
 estos
 estoy
 estro
+están
+estás
+estén
 esula
 etano
 etapa
@@ -3881,6 +3919,7 @@ fiche
 ficho
 ficto
 ficus
+fidel
 fideo
 fieis
 fiemo
@@ -4206,6 +4245,8 @@ futil
 futon
 futre
 fuñar
+fácil
+félix
 gaban
 gabar
 gacel
@@ -4508,6 +4549,7 @@ grisu
 grita
 grite
 grito
+gritó
 groad
 groan
 groar
@@ -4607,6 +4649,7 @@ guiye
 guiña
 guiñe
 guiño
+guión
 gujas
 gulag
 gular
@@ -4624,6 +4667,7 @@ gusto
 guzga
 guzgo
 guzla
+gómez
 habar
 habas
 haber
@@ -4633,10 +4677,13 @@ habiz
 habla
 hable
 hablo
+habló
 habon
 habra
 habre
+habrá
 habus
+había
 hacan
 haced
 hacen
@@ -4646,6 +4693,7 @@ hacha
 hache
 hacho
 hacia
+hacía
 hadar
 hadas
 hadiz
@@ -4690,6 +4738,8 @@ harre
 harta
 harte
 harto
+harán
+haría
 hasio
 hasta
 hatea
@@ -4994,6 +5044,7 @@ huyan
 huyas
 huyen
 huyes
+héroe
 ibais
 ibera
 ibero
@@ -5092,6 +5143,7 @@ irada
 irado
 irani
 ireis
+irene
 irgan
 irgas
 irgue
@@ -5157,6 +5209,7 @@ jaezo
 jagua
 jaiba
 jaima
+jaime
 jajay
 jalad
 jalan
@@ -5183,8 +5236,10 @@ jamen
 jameo
 james
 jamon
+jamás
 janes
 japon
+japón
 jaque
 jaral
 jaras
@@ -5242,6 +5297,7 @@ jerez
 jerga
 jerpa
 jesus
+jesús
 jetad
 jetan
 jetar
@@ -5328,11 +5384,13 @@ jopes
 jopos
 joras
 jorco
+jordi
 jorfe
 jorga
 jorge
 jorro
 josas
+josep
 jotas
 jotes
 jotos
@@ -5429,6 +5487,7 @@ kebab
 kefir
 kendo
 kilim
+kilos
 kirie
 koala
 kohol
@@ -5508,6 +5567,7 @@ lania
 lanio
 lanza
 lanzo
+lanzó
 lapas
 lapiz
 lapon
@@ -5554,6 +5614,7 @@ lauda
 laude
 laudo
 launa
+laura
 lauro
 lauta
 lauto
@@ -5667,6 +5728,7 @@ leyes
 lezda
 lezna
 lezne
+leído
 leñad
 leñan
 leñar
@@ -5745,6 +5807,7 @@ limen
 limes
 limon
 limos
+limón
 linao
 linar
 lince
@@ -5805,6 +5868,7 @@ llago
 llama
 llame
 llamo
+llamó
 llana
 llano
 llapa
@@ -5815,6 +5879,7 @@ lleca
 lleco
 llega
 llego
+llegó
 llena
 llene
 lleno
@@ -5822,6 +5887,7 @@ llera
 lleva
 lleve
 llevo
+llevó
 llora
 llore
 lloro
@@ -5862,6 +5928,7 @@ logos
 logra
 logre
 logro
+logró
 loica
 loina
 loino
@@ -5921,6 +5988,7 @@ lucma
 lucra
 lucre
 lucro
+lucía
 ludan
 ludas
 luden
@@ -5990,6 +6058,9 @@ luyes
 luzca
 luzco
 lycra
+líder
+línea
+lópez
 mabis
 mable
 macad
@@ -6128,6 +6199,7 @@ mares
 marga
 margo
 maria
+mario
 maris
 marlo
 maron
@@ -6141,6 +6213,7 @@ marta
 marte
 marza
 marzo
+maría
 masad
 masai
 masan
@@ -6274,6 +6347,7 @@ menas
 menda
 menea
 menee
+menem
 menen
 meneo
 menes
@@ -6342,6 +6416,7 @@ miaga
 miago
 miais
 miaja
+miami
 miara
 miare
 miase
@@ -6579,6 +6654,7 @@ morsa
 morse
 mosca
 mosco
+moscú
 mosen
 moste
 mosto
@@ -6691,6 +6767,7 @@ mures
 murga
 muria
 murio
+murió
 muros
 murta
 murto
@@ -6735,6 +6812,8 @@ muñid
 muñir
 muñis
 muñon
+muñoz
+móvil
 nabab
 nabal
 nabar
@@ -6752,6 +6831,7 @@ nacha
 nacho
 nacia
 nacio
+nació
 nacos
 nacre
 nadad
@@ -7004,6 +7084,7 @@ nutre
 nutri
 nutro
 nuños
+núñez
 oasis
 obelo
 obesa
@@ -7245,6 +7326,7 @@ orneo
 ornes
 oroya
 orsay
+ortiz
 ortos
 oruga
 orujo
@@ -7505,6 +7587,7 @@ parto
 party
 parva
 parvo
+parís
 pasad
 pasan
 pasar
@@ -7659,6 +7742,8 @@ penos
 pensa
 pense
 penso
+pensé
+pensó
 penta
 peora
 pepas
@@ -7760,6 +7845,7 @@ pidas
 piden
 pides
 pidio
+pidió
 pidon
 pieis
 piejo
@@ -7959,6 +8045,8 @@ podio
 podon
 podra
 podre
+podrá
+podía
 poema
 poeta
 poino
@@ -7997,6 +8085,7 @@ ponia
 ponis
 ponte
 ponto
+ponía
 popad
 popan
 popar
@@ -8075,6 +8164,7 @@ preso
 prest
 preve
 previ
+prevé
 preña
 preñe
 preño
@@ -8149,6 +8239,7 @@ pujar
 pujas
 pujen
 pujes
+pujol
 pujos
 pulan
 pulas
@@ -8238,11 +8329,13 @@ puñar
 puñir
 puños
 pymes
+pérez
 quark
 queco
 queda
 quede
 quedo
+quedó
 queer
 queja
 queje
@@ -8285,6 +8378,8 @@ quito
 quitu
 quivi
 quiza
+quizá
+quién
 quiña
 quiñe
 quiño
@@ -8375,6 +8470,7 @@ ramos
 rampa
 rampe
 rampo
+ramón
 ranas
 randa
 rands
@@ -8441,6 +8537,7 @@ razar
 razas
 razia
 razon
+razón
 rañas
 raños
 reaje
@@ -8595,6 +8692,7 @@ reveo
 rever
 reves
 revio
+revés
 reyad
 reyan
 reyar
@@ -8875,6 +8973,7 @@ rublo
 rubor
 rubra
 rubro
+rubén
 rucad
 rucan
 rucar
@@ -8987,6 +9086,7 @@ sable
 sabor
 sabra
 sabre
+sabía
 sacad
 sacan
 sacar
@@ -9045,6 +9145,7 @@ salin
 salio
 salir
 salis
+salió
 salla
 salle
 sallo
@@ -9063,6 +9164,8 @@ salud
 salva
 salve
 salvo
+salía
+salón
 saman
 samas
 samba
@@ -9162,6 +9265,7 @@ segue
 segui
 segun
 segur
+según
 seibo
 seico
 seise
@@ -9186,6 +9290,7 @@ senta
 sente
 senti
 sento
+sentí
 seora
 sepan
 sepas
@@ -9201,6 +9306,7 @@ seres
 seria
 serie
 serio
+serlo
 serna
 seron
 serpa
@@ -9210,6 +9316,8 @@ serro
 serum
 servi
 servo
+serán
+sería
 sesea
 sesee
 sesen
@@ -9327,6 +9435,7 @@ sitos
 situa
 situe
 situo
+sitúa
 soasa
 soase
 soaso
@@ -9354,6 +9463,7 @@ sodio
 soeza
 sofas
 sofis
+sofía
 sogas
 sogun
 sojas
@@ -9380,6 +9490,7 @@ solos
 solta
 solte
 solto
+solía
 somas
 somos
 sonad
@@ -9465,6 +9576,7 @@ subid
 subio
 subir
 subis
+subió
 subte
 suche
 sucia
@@ -9819,6 +9931,7 @@ tenta
 tente
 tento
 tenue
+tenía
 teosa
 teoso
 tepes
@@ -10032,6 +10145,7 @@ tomes
 tomin
 tomon
 tomos
+tomás
 tonad
 tonal
 tonan
@@ -10148,6 +10262,7 @@ traro
 trata
 trate
 trato
+trató
 travo
 traza
 trazo
@@ -10376,6 +10491,7 @@ unido
 union
 unira
 unire
+unión
 unjan
 unjas
 untad
@@ -10486,6 +10602,7 @@ vacio
 vacos
 vacua
 vacuo
+vacío
 vadea
 vadee
 vadeo
@@ -10630,6 +10747,7 @@ vento
 venus
 venza
 venzo
+venía
 veran
 veras
 veraz
@@ -10642,6 +10760,8 @@ verge
 veria
 veril
 verja
+verla
+verlo
 verme
 vermu
 veros
@@ -10686,6 +10806,7 @@ vicie
 vicio
 vicos
 victo
+vidal
 vidas
 video
 vides
@@ -10694,6 +10815,7 @@ vidon
 vidro
 vieja
 viejo
+viena
 viene
 viera
 viere
@@ -10775,8 +10897,10 @@ vivid
 vivio
 vivir
 vivis
+vivió
 vivon
 vivos
+vivía
 viñas
 voace
 vocal
@@ -10802,6 +10926,7 @@ volts
 volve
 volvi
 volvo
+volví
 vomer
 voraz
 vosea
@@ -10828,6 +10953,7 @@ vulgo
 vulto
 vulva
 vusco
+vídeo
 weber
 xecas
 xenon
@@ -10835,6 +10961,7 @@ xinca
 xiote
 xolas
 xolos
+xviii
 yabas
 yacal
 yacas
@@ -11123,6 +11250,17 @@ zuñid
 zuñir
 zuñis
 zuños
+ácido
+ángel
+ánimo
+árabe
+árbol
+áreas
+época
+éstas
+éstos
+ética
+éxito
 ñajas
 ñajos
 ñames
@@ -11175,3 +11313,6 @@ zuños
 ñutas
 ñutos
 ñuzco
+ópera
+única
+único
